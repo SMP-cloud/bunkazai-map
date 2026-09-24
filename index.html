@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-16 23:23） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-25 05:19） -->
 <title>登録有形文化財（建造物）全件マップ</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -166,6 +166,63 @@ select:focus{border-color:var(--line2)}
 .abtn.on{background:var(--sel); color:var(--sel-ink); border-color:var(--sel)}
 .note{font-size:10px; color:var(--dim2); line-height:1.6; margin-top:6px}
 
+/* 場所の候補（「尾鷲」→ 尾鷲市（三重県）） */
+.sugg{border:1px solid var(--line); border-top:0; background:#101013; max-height:230px; overflow-y:auto}
+.sugg .row2{display:flex; align-items:baseline; gap:8px; padding:5px 8px; cursor:pointer; font-size:12px; color:#dcdcdc}
+.sugg .row2:hover, .sugg .row2.sel{background:#17171b; color:var(--fg)}
+.sugg .p{color:var(--dim2); font-size:10px}
+.sugg .n{margin-left:auto; color:var(--dim2); font-size:10px; font-variant-numeric:tabular-nums}
+.sugg .hint2{padding:5px 8px; font-size:10px; color:var(--dim2); border-top:1px solid var(--line)}
+
+/* 同じ場所の一覧（クラスタのクリック / カードの「同じ場所」） */
+#placeList{
+  position:absolute; left:14px; bottom:14px; z-index:1005; width:264px; max-height:52%;
+  overflow-y:auto; background:var(--glass); border:1px solid var(--line); border-radius:3px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+#placeList h4{display:flex; align-items:baseline; gap:8px; padding:9px 11px 7px; font-size:10px;
+  letter-spacing:.12em; color:var(--dim2); border-bottom:1px solid var(--line)}
+#placeList h4 .x{margin-left:auto; cursor:pointer; color:var(--dim); font-size:13px; letter-spacing:0}
+#placeList h4 .x:hover{color:var(--fg)}
+#placeList .row2{display:flex; align-items:baseline; gap:7px; padding:5px 11px; cursor:pointer; font-size:12px; color:#d6d6d6}
+#placeList .row2:hover{background:#17171b; color:var(--fg)}
+#placeList .row2.on{background:#1c1c21; color:var(--fg)}
+#placeList .sw{width:8px; height:8px; border-radius:50%; flex:0 0 8px; align-self:center}
+#placeList .y{margin-left:auto; color:var(--dim2); font-size:10px; font-variant-numeric:tabular-nums}
+/* 自分で撮った写真 */
+#card .pcap{position:absolute; bottom:6px; left:8px; font-size:10px; letter-spacing:.06em;
+  color:#eaeaea; background:rgba(0,0,0,.5); padding:2px 7px; border-radius:2px}
+#card .mine{margin-top:12px; border-top:1px solid var(--line); padding-top:10px}
+#card .mine .t{font-size:10px; letter-spacing:.1em; color:var(--dim2); margin-bottom:6px}
+#card .mine .day{display:flex; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap}
+#card .mine .dt{font-size:10px; color:var(--dim); font-variant-numeric:tabular-nums; flex:0 0 76px}
+#card .mine .th{width:54px; height:40px; object-fit:cover; border:1px solid var(--line); border-radius:2px; cursor:pointer}
+#card .mine .th:hover{border-color:var(--fg)}
+/* 撮影の進み具合 */
+.cov{margin-top:9px; display:flex; flex-direction:column; gap:6px}
+.covrow{display:grid; grid-template-columns:64px 1fr; column-gap:8px; row-gap:2px; align-items:center}
+.covrow .l{grid-row:1 / 3; font-size:11px; color:#cfcfcf; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.covrow .bar{height:4px; background:var(--line); border-radius:2px; overflow:hidden}
+.covrow .bar i{display:block; height:100%; background:var(--sel); min-width:1px}
+.covrow .v{font-size:10px; color:var(--dim2); font-variant-numeric:tabular-nums}
+/* 撮影の目安 */
+#card .shot{margin-top:12px; border-top:1px solid var(--line); padding-top:10px}
+#card .shot .t{display:flex; align-items:baseline; gap:8px; font-size:10px; letter-spacing:.1em; color:var(--dim2); margin-bottom:5px}
+#card .shot .st{margin-left:auto; letter-spacing:.04em; font-size:10px; color:var(--dim); border:1px solid var(--line2); border-radius:2px; padding:0 5px}
+#card .shot .st.ok{color:var(--sel-ink); background:var(--sel); border-color:var(--sel)}
+#card .shot ul{margin:0; padding-left:1.15em; font-size:12px; color:#d6d6d6; line-height:1.75}
+#card .shot .mn{margin-top:7px; font-size:10px; color:var(--dim2); line-height:1.7}
+#card .maplink{font-size:10px; margin-left:8px; white-space:nowrap}
+#nearList .done{font-size:9px; color:var(--dim); border:1px solid var(--line2); border-radius:2px; padding:0 4px; white-space:nowrap}
+#card .same{margin-top:12px; border-top:1px solid var(--line); padding-top:10px}
+#card .same .t{font-size:10px; letter-spacing:.1em; color:var(--dim2); margin-bottom:5px}
+#card .same .row2{display:flex; align-items:baseline; gap:7px; padding:3px 0; cursor:pointer; font-size:12px; color:#cfcfcf}
+#card .same .row2:hover{color:var(--fg)}
+#card .same .sw{width:7px; height:7px; border-radius:50%; flex:0 0 7px; align-self:center}
+@media (max-width: 899px){
+  #placeList{left:8px; right:8px; width:auto; bottom:8px; max-height:44%}
+}
+
 /* ---- 年代アニメーション ---- */
 #animBar{margin-top:10px; padding-top:9px; border-top:1px dashed var(--line)}
 .anim-row{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:4px}
@@ -211,6 +268,7 @@ body.picking .leaflet-interactive{pointer-events:none!important}
 /* ---- leaflet ---- */
 .leaflet-container{background:#0B0B0C; font-family:inherit; font-size:12px}
 .leaflet-tile-pane{filter:brightness(.78) contrast(1.02) saturate(.75)}
+.leaflet-labels-pane{filter:brightness(1.15) contrast(1.1)}   /* 地名ラベルは読める明るさに */
 .leaflet-bar{border:1px solid var(--line)}
 .leaflet-bar a{background:#141416; color:var(--fg); border-bottom:1px solid var(--line)}
 .leaflet-bar a:hover{background:#1c1c1f}
@@ -271,6 +329,14 @@ body.picking .leaflet-interactive{pointer-events:none!important}
 #card .desc .hint{color:var(--dim2); font-size:10px; letter-spacing:.1em}
 #card .copy{margin-top:14px; text-align:center}
 #card .loading{padding:26px 15px; color:var(--dim2); font-size:11px; letter-spacing:.1em}
+
+/* ---- 配布版の表示 ---- */
+#localTag{display:none}
+body.localonly #localTag{
+  display:inline-block; padding:4px 10px; font-size:10px; letter-spacing:.12em; white-space:nowrap;
+  color:var(--dim); border:1px solid var(--line2); border-radius:2px;
+}
+body.localonly .civil-link{display:none}
 
 /* ---- 写真抜きの配布版 ---- */
 body.nophoto #mTile, body.nophoto .civil-link{display:none}
@@ -375,6 +441,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
       <button id="mMap" class="on">地図</button><button id="mTile">写真タイル</button>
     </div>
     <div class="title">登録有形文化財（建造物）&nbsp;<b>全12分類</b></div>
+    <span id="localTag" title="写真を含むため、手元での閲覧専用です">ローカル閲覧専用・再配布不可</span>
     <div class="spacer"></div>
     <div class="count" id="topcount"></div>
     <button class="tbtn" id="nearBtn">近くの文化財</button>
@@ -435,14 +502,29 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
       </div>
 
       <div class="fg">
+        <h3>市区町村 <span><span class="act" id="cityFit">この範囲</span> <span class="act" id="cityWide">広域で見る</span></span></h3>
+        <select id="citySel"></select>
+        <div class="pool" id="poolCity"></div>
+        <div class="note" id="cityWhere"></div>
+      </div>
+
+      <div class="fg">
         <h3 id="photoTitle">写真</h3>
         <div class="chips" id="photoChips"></div>
         <div class="pool" id="poolPhoto"></div>
       </div>
 
+      <div class="fg" id="mineBox" hidden>
+        <h3>自分の写真・撮影の進み具合</h3>
+        <div class="chips" id="mineChips"></div>
+        <div class="cov" id="coverage"></div>
+        <div class="note">「未撮影」＋「近くの文化財」で、行き先で撮れていない物件を近い順に並べられます。</div>
+      </div>
+
       <div class="fg">
-        <h3>名称検索</h3>
-        <input type="text" id="q" placeholder="名称の一部" autocomplete="off">
+        <h3>場所・名称で探す</h3>
+        <input type="text" id="q" placeholder="市町村名や名称（例: 尾鷲、旅館）" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="sugg">
+        <div class="sugg" id="sugg" role="listbox" hidden></div>
         <div class="pool" id="poolQ"></div>
       </div>
 
@@ -466,6 +548,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
       <div id="yearOverlay" hidden><span class="y" id="ovY"></span><span class="w" id="ovW"></span></div>
       <div id="tiles"><div id="tilegrid"></div><div id="tilefoot"></div></div>
       <div id="card" class="hidden"></div>
+      <div id="placeList" hidden></div>
       <div id="toast" hidden></div>
     </div>
   </div>
@@ -511,6 +594,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
       <li>「近くの文化財」で取得した現在地はこのブラウザ内での並べ替えにだけ使い、外部へは送信しません。</li>
       <li>絞り込み・表示位置・開いている物件はアドレスバーのURL（#以降）に入るので、リンクで同じ状態を開けます。</li>
       <li id="aboutBuilt"></li>
+      <li id="aboutLocal" hidden></li>
     </ul>
   </div>
 </div>
@@ -523,21 +607,28 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-16 23:23", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-25 05:19", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
-       "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む） */
+       "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
+       "local" = 写真入りのローカル閲覧専用（img/ を同梱。再配布不可） */
 const DIST = "site";
-const NO_PHOTO = DIST !== "";
-const INDEX_PATH = DIST ? 'data/index.js' : 'data/js/index.js';
+const HAS_MINE = true;   // 自分で撮った写真を同梱しているか
+const NO_PHOTO = DIST === 'standalone' || DIST === 'site';
+const LOCAL_ONLY = DIST === 'local';
+const INDEX_PATH = NO_PHOTO ? 'data/index.js' : 'data/js/index.js';
 function detailPath(catName){
-  // 配布版はファイル名を分類番号にする（日本語ファイル名は zip や公開先で壊れやすいため）
-  return DIST ? 'data/detail_'+String(IDX.cats.indexOf(catName)).padStart(2,'0')+'.js'
-              : 'data/js/101_'+encodeURIComponent(catName)+'.js';
+  // 写真抜き配布版はファイル名を分類番号にする（日本語ファイル名は zip や公開先で壊れやすいため）
+  return NO_PHOTO ? 'data/detail_'+String(IDX.cats.indexOf(catName)).padStart(2,'0')+'.js'
+                  : 'data/js/101_'+encodeURIComponent(catName)+'.js';
 }
 if(NO_PHOTO){
   document.body.classList.add('nophoto');
   document.getElementById('photoTitle').textContent = '文化庁DBの写真';   // 写真の有無はDB側の登録で絞る
+}
+if(LOCAL_ONLY){
+  document.body.classList.add('localonly');
+  document.title = document.title + '（ローカル閲覧専用）';
 }
 
 /* ============ 分類カラー ============
@@ -559,7 +650,7 @@ const $ = s => document.querySelector(s);
 const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 let IDX=null, N=0;
-let ids, names, namesL, cat, sub, typ, prf, lat, lng, yr, hasYr, yLo, yHi, ylab, ysrc, geo, photo;
+let ids, names, namesL, addr, addrL, city, cat, sub, typ, prf, lat, lng, yr, hasYr, yLo, yHi, ylab, ysrc, geo, photo;
 const idIndex = new Map();
 let markers=[], mcg=null, map=null;
 let YMIN=1400, YMAX=2000, MISSING=[];
@@ -568,8 +659,14 @@ const GEO_MISSING = 2, SRC_ESTIMATED = 2;
 const F = {
   cat:null, type:null, src:null,
   ymin:0, ymax:0, showNull:true,
-  pref:'', q:'', qRaw:'', photo:null
+  pref:'', city:-1, q:'', qRaw:'', photo:null, mine:0   // mine: 0=すべて 1=撮影済み 2=未撮影
 };
+let MINE_FLAG = null, MINE_TOTAL = 0;   // 物件ごとの「自分の写真あり」フラグ
+/* 撮影の目安（shot_guide.json）。build_html.py が差し込む */
+const SHOT = {"base":["全景（少し離れて、周りの景色も入れて）","正面","斜め前から（側面が見える角度）","細部（窓・扉・装飾など）"],"by_type":{"主屋":["屋根の形がわかる角度（妻側・破風）","玄関・出入口まわり"],"住宅":["屋根の形がわかる角度（妻側・破風）","玄関・出入口まわり"],"土蔵":["扉と窓（観音開き・鉢巻）","壁の仕上げ（なまこ壁・漆喰）"],"蔵":["扉と窓（観音開き・鉢巻）","壁の仕上げ（なまこ壁・漆喰）"],"倉庫":["扉・窓の並び","壁の素材（煉瓦・石・板張り）"],"門":["門の正面と内側（見える範囲で）","屋根と扉"],"塀":["塀の続き方がわかる引きの写真","塀の素材・瓦"],"茶室":["外から見える範囲の外観"],"本殿":["正面（向拝）","屋根と彫刻"],"拝殿":["正面（向拝）","屋根と彫刻"],"本堂":["正面（向拝）","屋根と軒の組物"],"山門":["正面と裏側","仁王像や扁額（あれば）"],"鐘楼":["全体（鐘が見える角度）"],"塔":["見上げの全体","相輪（てっぺん）"],"鳥居":["正面","額束（扁額）"],"教会":["正面と尖塔","窓（ステンドグラスは外から）"],"店舗":["店構え（看板・のれん）","通りとの関係がわかる写真"],"旅館":["玄関・看板","通りから見た外観"],"ホテル":["正面玄関","建物全体"],"料亭":["門と玄関","通りから見た外観"],"工場":["建物の並び・屋根の形（のこぎり屋根など）"],"煙突":["全体（てっぺんまで）","根元・銘板"],"橋":["横から見た橋の全景","橋脚・アーチ","親柱・銘板（橋の名前）","渡りながら見た路面"],"隧道":["坑口（出入口）の正面","扁額（トンネル名の石板）","反対側の坑口"],"坑口":["坑口（出入口）の正面","扁額（トンネル名の石板）"],"堰堤":["下流側からの全景","水が落ちる部分","銘板"],"水路":["水路の続き方","分水・樋門の仕掛け"],"駅舎":["駅前から見た正面","ホーム側（入場できれば）","駅名標"],"灯台":["全景（海が入る角度）","灯室（てっぺん）"],"港湾":["岸壁・防波堤の全景"],"擁壁":["石積みの全景","石の積み方のアップ"],"庁舎":["正面玄関","時計塔・車寄せ（あれば）"],"郵便局":["正面","看板・ポスト"],"校舎":["正面","校庭側から（入れる場合）"],"講堂":["正面","窓の並び"],"病院":["正面玄関"],"博物館":["正面玄関","入口の案内板"],"会館":["正面玄関","建物全体"],"図書館":["正面玄関"],"記念館":["正面玄関","入口の案内板"],"資料館":["正面玄関","入口の案内板"],"発電":["建屋の全景","水圧鉄管・放水口（見えれば）"],"水道":["建屋・施設の全景","銘板"],"城郭":["天守・櫓の全景","石垣"],"サイロ":["全体（てっぺんまで）"],"厩舎":["建物の全景"],"記念碑":["正面（碑文が読める距離）"]},"interior_types":["旅館","ホテル","料亭","店舗","博物館","会館","図書館","教会","駅舎","庁舎","講堂","記念館","資料館","郵便局","娯楽","病院"],"interior":"内観（一般公開・営業中で、撮影してよいと確認できた場合だけ）","manners":["多くは今も使われている個人の建物です。敷地に入らず、道路から見える範囲で撮りましょう","人や車のナンバーが写り込まないように","ドローンは使わない（許可が必要です）"]};
+/* 自分で撮った写真（myphotos/）。add_photos.py が作る index を build_* が mine/index.js として置く */
+let MINE = null;         // {byId:{物件ID:[{path,date,time}]}}
+const MINE_DIR = "mine/";   // 版によって myphotos/ か mine/
 let mode = 'map';        // 'map' | 'tile'
 let curId = null;        // 開いているカードの id
 let booted = false, mapReady = false;
@@ -597,6 +694,9 @@ function loadScript(src){
     // 下の方で宣言している変数に先に触れてしまう）
     await new Promise(r=>setTimeout(r,0));
     if(!window.BUNKAZAI_INDEX) await loadScript(INDEX_PATH);   // 単一ファイル版は埋め込み済み
+    if(!window.BUNKAZAI_MINE && HAS_MINE) await loadScript(MINE_DIR+'index.js').catch(()=>{});
+    // 自分の写真を扱う版では、まだ1枚も無くても「0%」から数えられるようにする
+    MINE = window.BUNKAZAI_MINE || (HAS_MINE ? {byId:{}, count:0} : null);
     IDX = window.BUNKAZAI_INDEX;
     if(!IDX) throw new Error('data/js/index.js の中身が想定と違います');
     $('#bootmsg').textContent = '索引を展開中';
@@ -610,6 +710,7 @@ function loadScript(src){
     setMode(H.mode || 'map');
     await new Promise(r=>setTimeout(r,0));
     applyFilters();
+    showCityWhere();
     $('#boot').classList.add('done');
     initialView(H);
     if(H.near) setBase(H.near[0], H.near[1], {move:false, label:'基点'});
@@ -630,6 +731,7 @@ function loadScript(src){
 function prepare(){
   const rows = IDX.rows; N = rows.length;
   ids=new Array(N); names=new Array(N); namesL=new Array(N);
+  addr=new Array(N); addrL=new Array(N); city=new Int16Array(N);
   cat=new Uint8Array(N); sub=new Uint8Array(N); typ=new Uint8Array(N); prf=new Uint8Array(N);
   lat=new Float64Array(N); lng=new Float64Array(N);
   yr=new Int32Array(N); hasYr=new Uint8Array(N); yLo=new Int32Array(N); yHi=new Int32Array(N);
@@ -638,6 +740,7 @@ function prepare(){
   for(let i=0;i<N;i++){
     const r=rows[i];
     ids[i]=r[0]; names[i]=r[1]; namesL[i]=r[1].toLowerCase();
+    addr[i]=r[15]||''; addrL[i]=addr[i].toLowerCase(); city[i]=r[16]==null?-1:r[16];
     cat[i]=r[2]; sub[i]=r[3]; typ[i]=r[4]; prf[i]=r[5];
     lat[i]=r[6]==null?NaN:r[6]; lng[i]=r[7]==null?NaN:r[7];
     if(r[8]==null){ hasYr[i]=0; yr[i]=0; yLo[i]=0; yHi[i]=0; }
@@ -660,6 +763,12 @@ function prepare(){
   IDX.prefComp = IDX.prefs.map(p=>p.split('・').filter(Boolean));
   const uniq = new Set(); IDX.prefComp.forEach(a=>a.forEach(p=>uniq.add(p)));
   IDX.prefOptions = [...uniq].sort((a,b)=>a.localeCompare(b,'ja'));
+  // 自分の写真がある物件
+  MINE_FLAG = new Uint8Array(N); MINE_TOTAL = 0;
+  if(MINE) for(let i=0;i<N;i++) if(MINE.byId[ids[i]]){ MINE_FLAG[i]=1; MINE_TOTAL++; }
+  // 市区町村ごとの件数（候補の「9件」表示に使う）
+  CITY_N = new Uint32Array(IDX.cities.length);
+  for(let i=0;i<N;i++) if(city[i]>=0) CITY_N[city[i]]++;
   // 描画用: Web メルカトルのズーム0ピクセル座標を先に計算しておく（年代アニメの点描画で使う）
   PX0=new Float64Array(N); PY0=new Float64Array(N);
   for(let i=0;i<N;i++){
@@ -669,7 +778,7 @@ function prepare(){
     PY0[i]=(0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*256;
   }
 }
-let PX0=null, PY0=null;
+let PX0=null, PY0=null, CITY_N=null;
 
 /* 年の表示用テキスト（推定は幅） */
 function yearText(i){
@@ -703,7 +812,9 @@ function parseHash(){
   if(raw.null==='0') H.showNull=false;
   if(raw.src!=null) H.src=list(raw.src);
   if(raw.pref) H.pref=raw.pref;
+  if(raw.city) H.city=raw.city;
   if(raw.photo==='1'||raw.photo==='0') H.photo=+raw.photo;
+  if(raw.mine==='1' || raw.mine==='2') H.mine=+raw.mine;
   if(raw.q) H.q=raw.q;
   if(raw.id) H.id=raw.id;
   if(raw.z!=null && raw.z!=='' && isFinite(+raw.z)) H.z=+raw.z;
@@ -723,7 +834,12 @@ function applyHashToFilters(H){
   }
   if(H.showNull===false) F.showNull=false;
   if(H.pref && IDX.prefOptions.includes(H.pref)) F.pref=H.pref;
+  if(H.city){
+    const i=IDX.cities.indexOf(H.city);
+    if(i>=0) F.city=i;
+  }
   if(H.photo!=null) F.photo=new Set([H.photo]);
+  if(H.mine) F.mine=H.mine;
   if(H.q){ F.qRaw=H.q; F.q=H.q.toLowerCase(); }
 }
 function hashFromState(){
@@ -737,7 +853,9 @@ function hashFromState(){
   if(!F.showNull) put('null','0');
   if(F.src.size!==IDX.ysrc.length) put('src', names(F.src, IDX.ysrc));
   if(F.pref) put('pref', F.pref);
+  if(F.city>=0) put('city', IDX.cities[F.city]);
   if(F.photo.size===1) put('photo', [...F.photo][0]);
+  if(F.mine) put('mine', F.mine);
   if(F.qRaw) put('q', F.qRaw);
   if(curId) put('id', curId);
   if(mapReady){
@@ -819,6 +937,14 @@ function initMap(){
     attribution:'Tiles &copy; Esri｜出典: 文化庁 国指定文化財等データベース（登録有形文化財・建造物）'
   }).addTo(map);
 
+  // 地名のラベル（市町村名・主要な地名）。位置関係が分かるように base の上に重ねる。
+  // ピンより下・クリックは透過させたいので専用の pane に置く。
+  map.createPane('labels');
+  map.getPane('labels').style.zIndex = 350;
+  map.getPane('labels').style.pointerEvents = 'none';
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    {maxNativeZoom:16, maxZoom:19, detectRetina:false, pane:'labels', opacity:.9}).addTo(map);
+
   // chunkedLoading は setTimeout で分割するぶん体感の完了が遅れる。
   // 計測では同期一括の方が速かったため同期で入れる。
   mcg = L.markerClusterGroup({
@@ -836,9 +962,12 @@ function initMap(){
   // マーカーは一度だけ生成し、以降のフィルタでは作り直さない
   for(let i=0;i<N;i++){
     if(geo[i]===GEO_MISSING || !isFinite(lat[i])) { markers.push(null); continue; }
+    const mineHere = MINE && MINE.byId[ids[i]];
     const m = L.circleMarker([lat[i],lng[i]],{
-      radius:PIN_R, weight:1, opacity:.95,
-      color:CAT_COLORS[cat[i]], fillColor:CAT_COLORS[cat[i]], fillOpacity:.55
+      // 自分で撮った物件は、輪を白くして太くする（撮影済みの目印）
+      radius:PIN_R, weight:mineHere?2.5:1, opacity:.95,
+      color:mineHere?'#E6E6E6':CAT_COLORS[cat[i]], fillColor:CAT_COLORS[cat[i]],
+      fillOpacity:mineHere?.9:.55
     });
     m.__i = i;
     m.on('mouseover', onPinHover);
@@ -872,8 +1001,16 @@ function initMap(){
         return;
       }
     }
-    if(map.getZoom() >= map.getMaxZoom()) e.layer.spiderfy();
-    else e.layer.zoomToBounds({padding:[20,20]});
+    // 同じ場所に固まっている（寄っても分かれない）ときは、一覧から選ばせる
+    const b=e.layer.getBounds();
+    const spread=b.getNorthEast().distanceTo(b.getSouthWest());
+    const kids=e.layer.getAllChildMarkers().map(m=>m.__i);
+    if(spread < 120 || map.getZoom() >= map.getMaxZoom()){
+      L.DomEvent.stopPropagation(e);
+      showPlaceList(kids, addr[kids[0]] || 'この場所の物件');
+      return;
+    }
+    e.layer.zoomToBounds({padding:[20,20]});
   });
 
   map.on('click', e=>{
@@ -902,6 +1039,11 @@ function initialView(H){
     if(H.c && H.z!=null) map.setView(H.c, Math.max(4, Math.min(18, Math.round(H.z))), {animate:false});
     else if(m) map.setView(m.getLatLng(), 16, {animate:false});
     else if(H.near) map.setView(H.near, 14, {animate:false});
+    else if(F.city>=0 && lastVisible.some(i=>markers[i])){
+      // 市区町村だけ指定されたリンクは、その範囲に寄せて開く
+      map.fitBounds(lastVisible.filter(i=>markers[i]).map(i=>[lat[i], lng[i]]),
+                    {padding:[40,40], maxZoom:16, animate:false});
+    }
     else map.fitBounds(JP_BOUNDS, {padding:[12,12], animate:false});
     mapReady = true;
     if(m && !H.c && mcg.hasLayer(m)) mcg.zoomToShowLayer(m, ()=>{});
@@ -974,7 +1116,8 @@ function applyFilters(){
   const prefOk = F.pref ? Uint8Array.from(IDX.prefComp, a=>a.includes(F.pref)?1:0) : null;
   const q=F.q, ymin=F.ymin, ymax=F.ymax, showNull=F.showNull;
   const cCat=new Uint32Array(nc), cType=new Uint32Array(nt), cSrc=new Uint32Array(3), cPhoto=new Uint32Array(2);
-  let exYear=0, exSrc=0, exType=0, exPref=0, exPhoto=0;
+  let exYear=0, exSrc=0, exType=0, exPref=0, exPhoto=0, exCity=0;
+  const fcity=F.city, fmine=MINE_FLAG ? F.mine : 0;
   const visIdx=[];
   for(let i=0;i<N;i++){
     const fc = catOn[cat[i]] ? 0 : 1;
@@ -984,13 +1127,17 @@ function applyFilters(){
     const fy = hasYr[i] ? ((yHi[i]<ymin || yLo[i]>ymax) ? 1 : 0) : (showNull ? 0 : 1);
     const fp = photoOn[photo[i]] ? 0 : 1;
     const fr = (prefOk && !prefOk[prf[i]]) ? 1 : 0;
-    const fq = (q && namesL[i].indexOf(q)<0) ? 1 : 0;
-    const nf = fc+ft+fs+fy+fp+fr+fq;
+    const fm = (fcity>=0 && city[i]!==fcity) ? 1 : 0;
+    if(fmine===1 && !MINE_FLAG[i]) continue;   // 撮影済みだけ
+    if(fmine===2 &&  MINE_FLAG[i]) continue;   // 未撮影だけ
+    // 検索語は名称と所在地の両方に当てる（「尾鷲」のような地名でも引けるように）
+    const fq = (q && namesL[i].indexOf(q)<0 && addrL[i].indexOf(q)<0) ? 1 : 0;
+    const nf = fc+ft+fs+fy+fp+fr+fm+fq;
     if(nf>1) continue;
     if(nf===0){
       visIdx.push(i);
       cCat[cat[i]]++; cType[typ[i]]++; if(s>=0) cSrc[s]++; cPhoto[photo[i]]++;
-      exYear++; exSrc++; exType++; exPref++; exPhoto++;
+      exYear++; exSrc++; exType++; exPref++; exPhoto++; exCity++;
     }
     else if(fc) cCat[cat[i]]++;
     else if(ft){ cType[typ[i]]++; exType++; }
@@ -998,6 +1145,7 @@ function applyFilters(){
     else if(fy) exYear++;
     else if(fp){ cPhoto[photo[i]]++; exPhoto++; }
     else if(fr) exPref++;
+    else if(fm) exCity++;
   }
   lastVisible = visIdx;
   const tFilter = performance.now()-t0;
@@ -1015,8 +1163,11 @@ function applyFilters(){
   CNT.poolSrc.textContent  = '母数 '+fmt(exSrc)+' 件';
   CNT.poolType.textContent = '母数 '+fmt(exType)+' 件';
   CNT.poolPref.textContent = '母数 '+fmt(exPref)+' 件';
+  CNT.poolCity.textContent = F.city>=0 ? IDX.cities[F.city]+' で '+fmt(V)+' 件'
+                                       : '母数 '+fmt(exCity)+' 件';
   CNT.poolPhoto.textContent= '母数 '+fmt(exPhoto)+' 件';
   CNT.poolQ.textContent    = F.q ? ('一致 '+fmt(V)+' 件') : '';
+  if(MINE) renderCoverage(visIdx);
 
   if(ANIM.playing){
     drawDots();
@@ -1060,6 +1211,256 @@ function refreshTypeChips(){
   });
 }
 
+/* ================= 場所の手がかり ================= */
+/* 「尾鷲市がどこか分からない」を補うための、主要都市からの距離と方角。県庁所在地＋主要市 */
+const MAJOR = [["札幌",43.0618,141.3545],["函館",41.7687,140.7288],["青森",40.8244,140.7406],["盛岡",39.7036,141.1527],
+  ["秋田",39.7186,140.1024],["山形",38.2404,140.3633],["仙台",38.2682,140.8694],["福島",37.7503,140.4676],
+  ["水戸",36.3418,140.4468],["宇都宮",36.5658,139.8836],["前橋",36.3895,139.0634],["さいたま",35.8617,139.6455],
+  ["千葉",35.6074,140.1065],["東京",35.6812,139.7671],["横浜",35.4437,139.6380],["新潟",37.9026,139.0234],
+  ["富山",36.6953,137.2114],["金沢",36.5613,136.6562],["福井",36.0652,136.2216],["甲府",35.6642,138.5684],
+  ["長野",36.6513,138.1810],["岐阜",35.3912,136.7223],["静岡",34.9756,138.3828],["名古屋",35.1815,136.9066],
+  ["津",34.7303,136.5086],["大津",35.0045,135.8686],["京都",35.0116,135.7681],["大阪",34.6937,135.5023],
+  ["神戸",34.6900,135.1956],["奈良",34.6851,135.8048],["和歌山",34.2260,135.1675],["鳥取",35.5011,134.2351],
+  ["松江",35.4723,133.0505],["岡山",34.6551,133.9195],["広島",34.3853,132.4553],["山口",34.1859,131.4714],
+  ["徳島",34.0658,134.5593],["高松",34.3401,134.0434],["松山",33.8416,132.7657],["高知",33.5597,133.5311],
+  ["福岡",33.5904,130.4017],["佐賀",33.2494,130.2988],["長崎",32.7448,129.8737],["熊本",32.8032,130.7079],
+  ["大分",33.2382,131.6126],["宮崎",31.9111,131.4239],["鹿児島",31.5966,130.5571],["那覇",26.2124,127.6809]];
+const DIR16 = ["北","北北東","北東","東北東","東","東南東","南東","南南東",
+               "南","南南西","南西","西南西","西","西北西","北西","北北西"];
+
+function bearingDeg(la1, ln1, la2, ln2){
+  const r=Math.PI/180, y=Math.sin((ln2-ln1)*r)*Math.cos(la2*r);
+  const x=Math.cos(la1*r)*Math.sin(la2*r)-Math.sin(la1*r)*Math.cos(la2*r)*Math.cos((ln2-ln1)*r);
+  return (Math.atan2(y,x)/r+360)%360;
+}
+function bearing16(la1, ln1, la2, ln2){
+  return DIR16[Math.round(bearingDeg(la1,ln1,la2,ln2)/22.5)%16];
+}
+/* 市区町村の中心（その市区町村の物件の平均位置） */
+function cityCenter(ci){
+  let n=0, la=0, ln=0;
+  for(let i=0;i<N;i++){
+    if(city[i]!==ci || !isFinite(lat[i])) continue;
+    la+=lat[i]; ln+=lng[i]; n++;
+  }
+  return n ? [la/n, ln/n] : null;
+}
+/* 県庁所在地（その県の中での位置）と、いちばん近い大都市（全国の中での位置）を並べる */
+const PREF_CAPITAL = {"北海道":"札幌","青森県":"青森","岩手県":"盛岡","宮城県":"仙台","秋田県":"秋田","山形県":"山形",
+  "福島県":"福島","茨城県":"水戸","栃木県":"宇都宮","群馬県":"前橋","埼玉県":"さいたま","千葉県":"千葉","東京都":"東京",
+  "神奈川県":"横浜","新潟県":"新潟","富山県":"富山","石川県":"金沢","福井県":"福井","山梨県":"甲府","長野県":"長野",
+  "岐阜県":"岐阜","静岡県":"静岡","愛知県":"名古屋","三重県":"津","滋賀県":"大津","京都府":"京都","大阪府":"大阪",
+  "兵庫県":"神戸","奈良県":"奈良","和歌山県":"和歌山","鳥取県":"鳥取","島根県":"松江","岡山県":"岡山","広島県":"広島",
+  "山口県":"山口","徳島県":"徳島","香川県":"高松","愛媛県":"松山","高知県":"高知","福岡県":"福岡","佐賀県":"佐賀",
+  "長崎県":"長崎","熊本県":"熊本","大分県":"大分","宮崎県":"宮崎","鹿児島県":"鹿児島","沖縄県":"那覇"};
+/* 大都市は「都市圏」でまとめる。大阪と京都のように近すぎる組み合わせを並べても位置が分からないため */
+const BIG_GROUPS = [["関西",["大阪","京都","神戸"]], ["関東",["東京","横浜"]], ["中京",["名古屋"]],
+  ["北陸",["金沢"]], ["静岡",["静岡"]], ["広島",["広島"]], ["福岡",["福岡"]], ["四国",["高松","松山"]],
+  ["仙台",["仙台"]], ["札幌",["札幌"]], ["新潟",["新潟"]], ["鹿児島",["鹿児島"]], ["那覇",["那覇"]], ["長野",["長野"]]];
+
+/* 「三重県 ｜ 津から南南西へ約80km ・ 名古屋から南へ約120km」 */
+function whereText(ci){
+  const c=cityCenter(ci);
+  if(!c) return '';
+  const pref=IDX.prefOptions.find(p=>IDX.cities[ci].startsWith(p)) || '';
+  const say = m => `${m[0]}から${bearing16(m[1],m[2],c[0],c[1])}へ約${Math.round(haversine(c[0],c[1],m[1],m[2])/1000/5)*5}km`;
+  const parts=[];
+  const cap = MAJOR.find(m=>m[0]===PREF_CAPITAL[pref]);
+  if(cap && haversine(c[0],c[1],cap[1],cap[2]) > 8000) parts.push(say(cap));     // 県庁所在地そのものなら省く
+  // 近い都市圏から2つ（尾鷲なら「大阪」と「名古屋」。県庁所在地と同じ都市圏は省く）
+  const capShown = parts.length>0;
+  BIG_GROUPS
+    .map(([g, cities])=>{
+      const best=cities.map(n=>MAJOR.find(m=>m[0]===n)).filter(Boolean)
+                       .filter(m=>haversine(c[0],c[1],m[1],m[2])>8000)   // その都市自身は省く
+                       .sort((a,b)=>haversine(c[0],c[1],a[1],a[2])-haversine(c[0],c[1],b[1],b[2]))[0];
+      if(!best) return null;
+      return {g, m:best, d:haversine(c[0],c[1],best[1],best[2]),
+              hasCap: capShown && cap && cities.includes(cap[0])};
+    })
+    .filter(x=>x && !x.hasCap)
+    .sort((a,b)=>a.d-b.d)
+    .slice(0, 2)
+    .forEach(x=>parts.push(say(x.m)));
+  return (pref?pref+' ｜ ':'') + parts.join(' ・ ');
+}
+function showCityWhere(){
+  $('#cityWhere').textContent = F.city>=0 ? whereText(F.city) : '';
+}
+/* その市区町村の県全体が見えるくらいまで引く */
+function wideView(){
+  if(F.city<0){ map.fitBounds(JP_BOUNDS,{padding:[12,12], animate:false}); return; }
+  const c=cityCenter(F.city);
+  if(c){ if(mode!=='map') setMode('map'); map.setView(c, 8, {animate:false}); }
+}
+
+/* ================= 場所・名称の候補 ================= */
+let suggList=[], suggSel=-1;
+function buildSuggestions(raw){
+  const box=$('#sugg');
+  const q=(raw||'').trim();
+  suggList=[]; suggSel=-1;
+  if(!q){ box.hidden=true; box.innerHTML=''; return; }
+  const ql=q.toLowerCase();
+  // 1) 市区町村（県名を添えるので、何県か知らなくても選べる）
+  const hits=[];
+  IDX.cities.forEach((full,i)=>{
+    const pref=IDX.prefOptions.find(p=>full.startsWith(p)) || '';
+    const name=full.slice(pref.length) || full;
+    if(name.indexOf(q)>=0 || full.indexOf(q)>=0) hits.push({type:'city', i, name, pref, n:CITY_N[i]});
+  });
+  hits.sort((a,b)=> (a.name.indexOf(q)-b.name.indexOf(q)) || (b.n-a.n));
+  suggList = hits.slice(0,6);
+  // 2) 都道府県
+  IDX.prefOptions.forEach(p=>{ if(p.indexOf(q)>=0 && suggList.length<8) suggList.push({type:'pref', name:p}); });
+  // 3) 名称・所在地の文字検索（いま何件当たるか）
+  let n=0;
+  for(let i=0;i<N;i++) if(namesL[i].indexOf(ql)>=0 || addrL[i].indexOf(ql)>=0) n++;
+  suggList.push({type:'text', q, n});
+
+  box.innerHTML = suggList.map((s,k)=>{
+    if(s.type==='city') return '<div class="row2" data-k="'+k+'"><span>'+esc(s.name)+'</span>'
+      +'<span class="p">'+esc(s.pref)+'</span><span class="n">'+s.n+'件</span></div>';
+    if(s.type==='pref') return '<div class="row2" data-k="'+k+'"><span>'+esc(s.name)+'</span>'
+      +'<span class="p">都道府県で絞る</span></div>';
+    return '<div class="row2" data-k="'+k+'"><span>「'+esc(s.q)+'」を名称・所在地から探す</span>'
+      +'<span class="n">'+s.n+'件</span></div>';
+  }).join('') + '<div class="hint2">↑↓ で選んで Enter</div>';
+  box.hidden=false;
+  box.querySelectorAll('.row2').forEach(el=>el.onclick=()=>pickSuggestion(+el.dataset.k));
+}
+function moveSuggestion(d){
+  if($('#sugg').hidden || !suggList.length) return;
+  suggSel = (suggSel + d + suggList.length) % suggList.length;
+  $('#sugg').querySelectorAll('.row2').forEach((el,k)=>el.classList.toggle('sel', k===suggSel));
+}
+function pickSuggestion(k){
+  const s=suggList[k>=0?k:0];
+  if(!s) return;
+  $('#sugg').hidden=true;
+  if(s.type==='city'){
+    F.city=s.i; F.pref=s.pref || '';
+    F.q=''; F.qRaw=''; $('#q').value=s.name;
+    $('#prefSel').value=F.pref; buildCityOptions();
+    applyFilters(); showCityWhere(); fitVisible();
+    showToast(s.name+'（'+s.pref+'） '+s.n+'件 ・ '+whereText(s.i), 5000);
+  } else if(s.type==='pref'){
+    F.pref=s.name; F.city=-1; F.q=''; F.qRaw=''; $('#q').value='';
+    $('#prefSel').value=F.pref; buildCityOptions();
+    applyFilters(); showCityWhere(); fitVisible();
+  } else {
+    F.qRaw=s.q; F.q=s.q.toLowerCase(); applyFilters();
+  }
+}
+
+/* ================= 撮影の進み具合と、撮影の目安 ================= */
+function covLine(label, have, total){
+  const pct = total ? have/total*100 : 0;
+  // 撮り始めは全国比がとても小さいので、0.1%未満は小数2桁まで出す（0.0% と表示させない）
+  const p = pct===0 ? '0' : pct>=10 ? pct.toFixed(0) : pct>=0.1 ? pct.toFixed(1) : pct.toFixed(2);
+  return '<div class="covrow"><span class="l" title="'+esc(label)+'">'+esc(label)+'</span>'
+    +'<span class="bar"><i style="width:'+Math.min(100,pct)+'%"></i></span>'
+    +'<span class="v">'+have.toLocaleString()+' / '+total.toLocaleString()+'（'+p+'%）</span></div>';
+}
+/* 全国・選んだ県・選んだ市区町村・いま表示中の、それぞれ何件を自分で撮れたか */
+function renderCoverage(vis){
+  let html = covLine('全国', MINE_TOTAL, N);
+  const pref = F.pref || (F.city>=0 ? (IDX.prefOptions.find(p=>IDX.cities[F.city].startsWith(p))||'') : '');
+  if(pref || F.city>=0){
+    let pT=0,pH=0,cT=0,cH=0;
+    for(let i=0;i<N;i++){
+      if(pref && IDX.prefComp[prf[i]].includes(pref)){ pT++; if(MINE_FLAG[i]) pH++; }
+      if(F.city>=0 && city[i]===F.city){ cT++; if(MINE_FLAG[i]) cH++; }
+    }
+    if(pref) html += covLine(pref, pH, pT);
+    if(F.city>=0) html += covLine(IDX.cities[F.city].slice(pref.length) || IDX.cities[F.city], cH, cT);
+  }
+  let vH=0; for(const i of vis) if(MINE_FLAG[i]) vH++;
+  html += covLine('表示中', vH, vis.length);
+  $('#coverage').innerHTML = html;
+}
+/* その物件で撮りたいカット（shot_guide.json の base ＋ 種類ごと ＋ 公開施設なら内観） */
+function shotsFor(i){
+  const t = IDX.types[typ[i]] || '';
+  const extra=[];
+  for(const k in SHOT.by_type) if(t.indexOf(k)>=0) extra.push(...SHOT.by_type[k]);
+  const list=[...SHOT.base, ...extra].filter((x,k,a)=>a.indexOf(x)===k);
+  if(SHOT.interior_types.some(k=>t.indexOf(k)>=0)) list.push(SHOT.interior);
+  return list;
+}
+function mapsUrl(i){
+  return 'https://www.google.com/maps/search/?api=1&query='+lat[i].toFixed(6)+','+lng[i].toFixed(6);
+}
+function shotHtml(i){
+  if(!MINE || i<0) return '';
+  const done = MINE.byId[ids[i]] || [];
+  const dates=[...new Set(done.map(p=>p.date))].sort();
+  const status = done.length ? '撮影済み（'+dates.join('・')+'／'+done.length+'枚）' : '未撮影';
+  return '<div class="shot"><div class="t">撮影の目安<span class="st'+(done.length?' ok':'')+'">'+esc(status)+'</span></div>'
+    + '<ul>'+shotsFor(i).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>'
+    + '<div class="mn">'+SHOT.manners.map(esc).join('<br>')+'</div>'
+    + '</div>';
+}
+
+/* ================= 同じ場所の物件 ================= */
+/* 密集地でピンを選び分けなくて済むように、その地点の物件を一覧から選べるようにする */
+function sameSpot(i, limit){
+  const out=[];
+  for(let j=0;j<N;j++){
+    if(j===i || !isFinite(lat[j])) continue;
+    if(addr[j] && addr[j]===addr[i]) { out.push(j); }
+    else if(isFinite(lat[i]) && haversine(lat[i],lng[i],lat[j],lng[j])<30) out.push(j);
+    if(out.length>=(limit||8)) break;
+  }
+  return out;
+}
+function showPlaceList(idxs, title){
+  const box=$('#placeList');
+  const rows=idxs.slice(0, 60).map(i=>{
+    const y=yearText(i);
+    return '<div class="row2" data-i="'+i+'"><span class="sw" style="background:'+CAT_COLORS[cat[i]]+'"></span>'
+      +'<span>'+esc(names[i])+'</span><span class="y">'+(y||'')+'</span></div>';
+  }).join('');
+  box.innerHTML='<h4><span>'+esc(title||'この場所の物件')+'</span><span>'+idxs.length+'件</span>'
+    +'<span class="x" id="plClose" title="閉じる">×</span></h4>'+rows;
+  box.hidden=false;
+  box.querySelectorAll('.row2').forEach(el=>el.onclick=()=>{
+    const i=+el.dataset.i;
+    box.querySelectorAll('.row2').forEach(r=>r.classList.toggle('on', r===el));
+    openCard(i);
+  });
+  $('#plClose').onclick=()=>{ box.hidden=true; };
+}
+
+/* 市区町村の選択肢。都道府県を選んでいればその県だけ、選んでいなければ県ごとにまとめて全件 */
+function buildCityOptions(){
+  const sel=$('#citySel');
+  const groups=new Map();
+  IDX.cities.forEach((c,i)=>{
+    const p=IDX.prefOptions.find(x=>c.startsWith(x)) || 'その他';
+    if(F.pref && p!==F.pref) return;
+    if(!groups.has(p)) groups.set(p,[]);
+    groups.set(p, groups.get(p).concat([[i, c.slice(p.length) || c]]));
+  });
+  let html='<option value="">すべて</option>';
+  for(const [p, list] of groups){
+    html += '<optgroup label="'+esc(p)+'">'
+      + list.map(([i,label])=>'<option value="'+i+'">'+esc(label)+'</option>').join('')
+      + '</optgroup>';
+  }
+  sel.innerHTML=html;
+  sel.value = F.city>=0 ? String(F.city) : '';
+}
+
+/* いま表示している物件が収まるように地図を寄せる */
+function fitVisible(){
+  const pts=[];
+  for(const i of lastVisible){ if(markers[i]) pts.push([lat[i], lng[i]]); }
+  if(!pts.length){ showToast('地図に出せる物件がありません'); return; }
+  if(mode!=='map') setMode('map');
+  map.fitBounds(pts, {padding:[40,40], maxZoom:16, animate:false});
+}
+
 /* F の値を各コントロールの見た目に反映（ハッシュから開いたとき用） */
 function syncControls(){
   document.querySelectorAll('#catList .catrow').forEach(el=>el.classList.toggle('off', !F.cat.has(+el.dataset.v)));
@@ -1070,7 +1471,10 @@ function syncControls(){
     const on=F.photo.has(+el.dataset.v); el.classList.toggle('on',on); el.classList.toggle('off',!on); });
   drawYearUI();
   $('#tgNull').classList.toggle('on', F.showNull);
+  document.querySelectorAll('#mineChips .chip').forEach(el=>{
+    const on=+el.dataset.v===F.mine; el.classList.toggle('on',on); el.classList.toggle('off',!on); });
   $('#prefSel').value = F.pref;
+  buildCityOptions();
   $('#q').value = F.qRaw;
 }
 function drawYearUI(){
@@ -1139,15 +1543,51 @@ function buildUI(){
     pc.appendChild(c);
     CNT.photo[v] = c.querySelector('.n');
   });
-  ['poolYear','poolSrc','poolType','poolPref','poolPhoto','poolQ'].forEach(k=>CNT[k]=$('#'+k));
+  ['poolYear','poolSrc','poolType','poolPref','poolCity','poolPhoto','poolQ'].forEach(k=>CNT[k]=$('#'+k));
 
   refreshTypeChips();
   $('#typeAll').onclick=()=>{ IDX.types.forEach((_,i)=>F.type.add(i)); refreshTypeChips(); scheduleFilter(0); };
 
+  // 自分の写真（すべて / 撮影済み / 未撮影 の切り替え。ひとつだけ選ぶ）
+  if(MINE){
+    $('#mineBox').hidden=false;
+    const mc=$('#mineChips');
+    [[0,'すべて'],[1,'撮影済み'],[2,'未撮影']].forEach(([v,label])=>{
+      const c=document.createElement('span');
+      c.className='chip'+(F.mine===v?' on':' off'); c.dataset.v=v; c.textContent=label;
+      c.onclick=()=>{
+        F.mine=v;
+        mc.querySelectorAll('.chip').forEach(el=>{ const on=+el.dataset.v===v; el.classList.toggle('on',on); el.classList.toggle('off',!on); });
+        scheduleFilter(0);
+      };
+      mc.appendChild(c);
+    });
+  }
+
   // 都道府県
   $('#prefSel').innerHTML='<option value="">すべて</option>'
     + IDX.prefOptions.map(p=>'<option value="'+esc(p)+'">'+esc(p)+'</option>').join('');
-  $('#prefSel').onchange=e=>{ F.pref=e.target.value; scheduleFilter(0); };
+  $('#prefSel').onchange=e=>{
+    F.pref=e.target.value;
+    if(F.city>=0 && F.pref && !IDX.cities[F.city].startsWith(F.pref)) F.city=-1;   // 県を変えたら市区町村は外す
+    buildCityOptions();
+    scheduleFilter(0);
+  };
+
+  // 市区町村（都道府県ごとにまとめる。県を選んでいればその県だけ）
+  buildCityOptions();
+  $('#citySel').onchange=e=>{
+    F.city = e.target.value==='' ? -1 : +e.target.value;
+    if(F.city>=0){
+      const c=IDX.cities[F.city], p=IDX.prefOptions.find(x=>c.startsWith(x));
+      if(p && F.pref && p!==F.pref){ F.pref=p; $('#prefSel').value=p; }   // 県をまたぐ指定は県側を合わせる
+    }
+    applyFilters();
+    showCityWhere();
+    if(F.city>=0) fitVisible();
+  };
+  $('#cityFit').onclick=()=>fitVisible();
+  $('#cityWide').onclick=()=>wideView();
 
   // 年レンジ
   const a=$('#yrmin'), b=$('#yrmax');
@@ -1176,8 +1616,23 @@ function buildUI(){
   const ay=$('#animYear');
   ay.oninput=()=>animJump(+ay.value);
 
-  // 検索
-  $('#q').oninput=e=>{ F.qRaw=e.target.value.trim(); F.q=F.qRaw.toLowerCase(); scheduleFilter(); };
+  // 場所・名称で探す（候補つき）
+  const qEl=$('#q');
+  qEl.oninput=e=>{
+    F.qRaw=e.target.value.trim(); F.q=F.qRaw.toLowerCase();
+    buildSuggestions(F.qRaw);
+    scheduleFilter();
+  };
+  qEl.onkeydown=e=>{
+    if(e.key==='ArrowDown'){ e.preventDefault(); moveSuggestion(1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); moveSuggestion(-1); }
+    else if(e.key==='Enter'){ e.preventDefault(); pickSuggestion(suggSel); }
+    else if(e.key==='Escape'){ $('#sugg').hidden=true; }
+  };
+  qEl.onfocus=()=>{ if(F.qRaw) buildSuggestions(F.qRaw); };
+  document.addEventListener('click', e=>{
+    if(!e.target.closest('#sugg') && e.target!==qEl) $('#sugg').hidden=true;
+  });
 
   // 地図に出せない物件
   $('#missBtn').textContent = MISSING.length+' 件';
@@ -1466,6 +1921,7 @@ function renderNear(){
     const li=document.createElement('li');
     li.innerHTML='<span class="k">'+(k+1)+'</span><span class="sw" style="background:'+CAT_COLORS[cat[i]]+'"></span>'
       +'<span class="nm" title="'+esc(names[i])+'">'+esc(names[i])+'</span>'
+      +(MINE_FLAG && MINE_FLAG[i] ? '<span class="done">撮影済</span>' : '')
       +'<span class="d">'+fmtDist(haversine(la, ln, lat[i], lng[i]))+'</span>';
     li.onclick=()=>{
       openCard(i);
@@ -1500,6 +1956,13 @@ function openAbout(){
     $('#aboutMiss').textContent=fmt(BUILD.missing);
     $('#aboutBuilt').textContent='このページの生成: '+BUILD.built;
     if(NO_PHOTO) $('#aboutPhotoNote').textContent='この版は写真を含みません。写真は各物件の文化庁の詳細ページで見られます。';
+    if(LOCAL_ONLY){
+      $('#aboutPhotoNote').textContent='この版は写真を同梱しています。写真の権利は第三者にあるため、手元で見るためだけに使い、'
+        +'他の人に渡したり、ウェブやクラウドに置いたりはできません。';
+      const li=$('#aboutLocal');
+      li.hidden=false;
+      li.textContent='この版は「ローカル閲覧専用・再配布不可」です。人に渡す場合は、写真を含まない配布版（dist/）を使ってください。';
+    }
   }
   $('#about').hidden=false;
   $('#aboutClose').focus();
@@ -1584,7 +2047,7 @@ async function loadDetail(catName){
   return m;
 }
 
-let gal=[], galI=0, curRec=null;
+let gal=[], galCap=[], galI=0, curRec=null;
 function openCard(i, opts){
   const push = !opts || opts.push!==false;
   const card=$('#card');
@@ -1621,13 +2084,53 @@ function closeCard(opts){
   if(!fromPop && booted) writeHashNow();
 }
 
+const idxIndex = id => { const i=idIndex.get(id); return i==null ? -1 : i; };
+
+/* カードの中の「自分の写真」。撮影日ごとにまとめ、押すと上の写真枠で開く */
+function mineHtml(pid){
+  const all = (MINE && MINE.byId[pid]) || [];
+  if(!all.length) return '';
+  // 画像を含まない版（build_dist.py --mine-list）では path が無いので、日付だけ出す
+  const list = all.filter(p=>p.path);
+  const base = gal.length - list.length;      // 自分の写真は gal の後ろに入れてある（新しい順）
+  const slotOf = new Map(list.map((p,k)=>[p, base + (list.length - 1 - k)]));
+  const byDate = new Map();
+  all.forEach(p=>{
+    if(!byDate.has(p.date)) byDate.set(p.date, []);
+    byDate.get(p.date).push(p);
+  });
+  const days=[...byDate.entries()].sort((a,b)=>b[0].localeCompare(a[0]));
+  return '<div class="mine"><div class="t">自分の写真（'+all.length+'枚・'+days.length+'日）'
+      + (list.length ? '' : '　この版には画像を含めていません') + '</div>'
+    + days.map(([d, items])=>'<div class="day"><span class="dt">'+esc(d)+'</span>'
+        + items.map(p=> p.path
+            ? '<img class="th" data-slot="'+slotOf.get(p)+'" src="'+esc(MINE_DIR+p.path)+'" alt="" loading="lazy" title="'+esc(d+' '+(p.time||''))+'">'
+            : '<span class="dt">'+esc(p.time||'')+'</span>').join('')
+        + '</div>').join('')
+    + '</div>';
+}
+
+/* カードの中の「同じ場所の物件」。密集地でピンを選び分けなくても行き来できるように */
+function sameSpotHtml(i){
+  if(i<0) return '';
+  const sib=sameSpot(i, 8);
+  if(!sib.length) return '';
+  return '<div class="same"><div class="t">同じ場所の物件（'+sib.length+'）</div>'
+    + sib.map(j=>'<div class="row2" data-i="'+j+'"><span class="sw" style="background:'+CAT_COLORS[cat[j]]+'"></span>'
+        +'<span>'+esc(names[j])+'</span></div>').join('')
+    + '</div>';
+}
+
 function drawCard(r, ci){
   curRec = r;
-  gal = [];
+  gal = []; galCap = [];
   const local = (!NO_PHOTO && r.photo_local) ? [r.photo_local] : [];
-  const first = [...local, ...(r.photos&&r.photos[0]?[r.photos[0]]:[]), ...(r.photo?[r.photo]:[])];
-  if(first.length) gal.push(first);
-  (r.photos||[]).slice(1).forEach(u=>gal.push([u]));
+  const first = [...local, ...(NO_PHOTO?[]:(r.photos&&r.photos[0]?[r.photos[0]]:[])), ...(NO_PHOTO?[]:(r.photo?[r.photo]:[]))];
+  if(first.length){ gal.push(first); galCap.push(''); }
+  if(!NO_PHOTO) (r.photos||[]).slice(1).forEach(u=>{ gal.push([u]); galCap.push(''); });
+  // 自分で撮った写真（撮影が新しい順に、文化庁の写真のあとへ）
+  const mine = ((MINE && MINE.byId[r.id]) || []).filter(p=>p.path);
+  [...mine].reverse().forEach(p=>{ gal.push([MINE_DIR+p.path]); galCap.push('自分の写真 '+p.date+(p.time?' '+p.time:'')); });
   galI=0;
 
   const row=(k,v)=> (v==null||v==='') ? '' :
@@ -1640,6 +2143,7 @@ function drawCard(r, ci){
   } else {
     yline = r.year+'年 <span class="tag">'+esc(r.year_source||'')+'</span>';
   }
+  const ci2 = idxIndex(r.id);    // 索引上の位置（地図アプリへのリンク用）
   const tline = esc(r.type_guess||'')
     + (r.type_guess_confidence==='low' ? ' <span class="tag">推定</span>' : '');
 
@@ -1657,16 +2161,22 @@ function drawCard(r, ci){
     +row('構造', esc(r.structure))
     +row('材質', esc(r.structure_material))
     +row('分類推定', tline)
-    +row('所在', esc(r.pref||'')+(r.address?'　'+esc(r.address):''))
+    +row('所在', esc(r.pref||'')+(r.address?'　'+esc(r.address):'')
+        + (ci2>=0 && isFinite(lat[ci2]) ? '<a class="maplink" href="'+mapsUrl(ci2)+'" target="_blank" rel="noopener">地図アプリ ↗</a>' : ''))
     +row('登録', esc(r.registered))
     +row('時代', esc(r.period))
     +row('登録番号', esc(r.register_no))
     +(r.desc?'<div class="desc clamp" id="desc">'+esc(r.desc)+' <span class="hint">［展開］</span></div>':'')
+    + mineHtml(r.id)
+    + shotHtml(idxIndex(r.id))
+    + sameSpotHtml(idxIndex(r.id))
     +'<button class="linkbtn copy" id="copyLink">このページのリンクをコピー</button>'
     +'</div>';
   drawSlide();
   const d=$('#desc'); if(d) d.onclick=()=>d.classList.toggle('clamp');
   $('#copyLink').onclick=e=>copyLink(e.currentTarget);
+  $('#card').querySelectorAll('.same .row2').forEach(el=>el.onclick=()=>openCard(+el.dataset.i));
+  $('#card').querySelectorAll('.mine .th').forEach(el=>el.onclick=()=>{ galI=+el.dataset.slot; drawSlide(); });
 }
 
 async function copyLink(btn){
@@ -1693,8 +2203,9 @@ function drawSlide(){
   const close=document.createElement('button');
   close.className='close'; close.textContent='×'; close.setAttribute('aria-label','閉じる');
   close.onclick=()=>closeCard(); ph.appendChild(close);
-  if(NO_PHOTO){
-    // 配布版: 写真は持たず、写真枠に文化庁の詳細ページへのリンクを置く
+  if(NO_PHOTO && !gal.length){
+    // 写真抜きの配布版: 文化庁の写真は持たないので、写真枠にその詳細ページへのリンクを置く
+    // （自分で撮った写真がある物件は gal に入っているので、下の通常表示になる）
     const r=curRec, i=idIndex.get(r.id), has=i!=null && photo[i];
     const box=document.createElement('div'); box.className='dblink';
     box.innerHTML = (r.url ? '<a href="'+esc(r.url)+'" target="_blank" rel="noopener">'
@@ -1723,6 +2234,10 @@ function drawSlide(){
     ph.appendChild(p); ph.appendChild(n);
     const c=document.createElement('div'); c.className='pcount'; c.textContent=(galI+1)+' / '+gal.length;
     ph.appendChild(c);
+  }
+  if(galCap[galI]){
+    const cap=document.createElement('div'); cap.className='pcap'; cap.textContent=galCap[galI];
+    ph.appendChild(cap);
   }
   let sx=null;
   ph.onpointerdown=e=>{sx=e.clientX;};
