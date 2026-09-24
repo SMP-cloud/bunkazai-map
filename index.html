@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-25 06:30） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-25 08:03） -->
 <title>登録有形文化財（建造物）全件マップ</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -297,6 +297,7 @@ body.picking .leaflet-interactive{pointer-events:none!important}
 #card .ph{position:relative; width:100%; aspect-ratio:4/3; background:#111113;
   overflow:hidden; display:flex; align-items:center; justify-content:center}
 #card .ph img{width:100%; height:100%; object-fit:cover; display:block}
+#card .ph img.whole{object-fit:contain; background:#0d0d0f}   /* 自分の写真は縦撮りでも切らずに全体を見せる */
 #card .ph .empty{color:var(--dim2); font-size:11px; letter-spacing:.1em}
 #card .nav{position:absolute; top:50%; transform:translateY(-50%);
   width:30px; height:44px; display:flex; align-items:center; justify-content:center;
@@ -607,7 +608,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-25 06:30", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-25 08:03", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
@@ -2223,6 +2224,7 @@ function drawSlide(){
   img.onerror=()=>{ ci++; if(ci<cands.length){ img.src=cands[ci]; }
     else { img.remove(); const e=document.createElement('div'); e.className='empty'; e.textContent='NO PHOTO'; ph.appendChild(e); } };
   img.src=cands[0];
+  if(galCap[galI]) img.classList.add('whole');   // 自分の写真
   img.alt='';
   img.onclick=()=>{ if(gal.length>1){ galI=(galI+1)%gal.length; drawSlide(); } };
   ph.appendChild(img);
