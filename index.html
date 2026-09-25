@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-25 19:41） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-26 05:27） -->
 <title>登録有形文化財（建造物）全件マップ</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -282,6 +282,9 @@ body.picking .leaflet-interactive{pointer-events:none!important}
 .leaflet-tooltip.pin-tip::before{display:none}
 .pin-tip .c{color:var(--dim); font-size:10px}
 .marker-cluster{background:none!important; border:0!important}
+/* クリック後に出ていた白い四角（フォーカス枠）は、キーボードで選んだときだけ出す */
+.leaflet-marker-icon:focus{outline:none}
+.leaflet-marker-icon:focus-visible{outline:1px solid var(--line2); outline-offset:2px}
 .marker-cluster div{background:none!important}
 .cl-label{fill:var(--fg); font-size:10px; font-family:'Inter',sans-serif;
   text-anchor:middle; dominant-baseline:central; font-variant-numeric:tabular-nums}
@@ -608,7 +611,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-25 19:41", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-26 05:27", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
@@ -955,7 +958,9 @@ function initMap(){
     showCoverageOnHover:false,
     zoomToBoundsOnClick:false,   // 下の clusterclick で自前に処理（広げた当たり判定が近くのピンを奪わないように）
     spiderfyOnMaxZoom:false,
-    maxClusterRadius: z => z<=5 ? 55 : z<=7 ? 48 : z<=9 ? 42 : z<=11 ? 36 : z<=13 ? 28 : 22,
+    // 寄せるほど「まとめる範囲」を小さくする。一番寄せたとき（18）は、ほぼ同じ地点のものだけをまとめる
+    // （10m離れた別棟が、最大まで寄せてもまとまったまま分かれない、を防ぐ）
+    maxClusterRadius: z => z<=5 ? 55 : z<=7 ? 48 : z<=9 ? 42 : z<=11 ? 36 : z<=13 ? 28 : z<=15 ? 22 : z<=16 ? 16 : z<=17 ? 10 : 5,
     iconCreateFunction: clusterIcon
   });
   map.addLayer(mcg);
