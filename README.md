@@ -12,7 +12,7 @@
 | `data/detail_00.js` 〜 `detail_11.js` | 分類ごとの詳細（解説文・構造・所在地など。ピンを押したときに該当分類だけ読む） |
 | `.nojekyll` | GitHub Pages にファイルをそのまま配信させるための空ファイル（消さない） |
 
-外部依存は CDN のみ（Leaflet / Leaflet.markercluster / Google Fonts / Esri の地図タイル）。サーバー側の処理はありません。
+外部依存は CDN のみ（Leaflet / Leaflet.markercluster / Google Fonts / 国土地理院の地図タイル「地理院タイル」）。サーバー側の処理はありません。
 
 ## GitHub Pages で公開する手順
 
