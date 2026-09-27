@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-28 06:39） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-28 06:56） -->
 <title>登録有形文化財（建造物）全件マップ</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -487,10 +487,11 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 }
 /* ---- スマホ（768px以下）: 地図を全面に出し、検索・フィルタ・詳細は下から引き出すシートにする ----
    シートは #filters（検索・絞り込み）/ #card（詳細）/ #welcome / #placeList の4つ。
-   高さは JS（SHEET）が --peek / 半分 / 全体 のどこかに合わせる。
+   高さは JS（SHEET）が「最小化／中間／最大化」のどれかに合わせる。
+   --sheet-h は検索・絞り込みシートの今の高さ（地図の出典などをその上に逃がすのに使う）。
    見た目の「つまみ」は ::before を sticky で上端に固定して描く（中身がスクロールしても残る） */
 @media (max-width: 768px){
-  :root{--peek:150px}
+  :root{--sheet-h:35vh}
   #fBtn,#scrim,#fHead{display:none!important}
   #topbar{height:46px; min-height:0; flex-wrap:nowrap; overflow-x:auto; gap:6px; padding:0 10px;
     scrollbar-width:none}
@@ -503,13 +504,13 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
   #filters,#card,#welcome,#placeList{
     position:fixed; left:0; right:0; bottom:0; top:auto;
     width:auto; max-width:none; max-height:none; flex:none;
-    height:var(--peek); transform:none; visibility:visible;
+    height:35vh; transform:none; visibility:visible;
     background:var(--panel-solid); border:1px solid var(--line); border-bottom:0; border-radius:14px 14px 0 0;
     backdrop-filter:none; -webkit-backdrop-filter:none;
     box-shadow:0 -8px 28px rgba(0,0,0,.28);
     overflow-y:auto; overscroll-behavior:contain;
     padding-top:0; padding-bottom:calc(24px + env(safe-area-inset-bottom));
-    transition:height .24s cubic-bezier(.2,.8,.2,1);
+    transition:height .26s cubic-bezier(.2,.8,.2,1);
   }
   #filters{z-index:1020; padding-left:16px; padding-right:16px; --pi:16px}
   #placeList{z-index:1030; --pi:0px}
@@ -522,16 +523,16 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
     border-radius:14px 14px 0 0;
   }
   .sheet-drag{transition:none!important}
-  #filters.at-peek{overflow:hidden}
+  #filters.at-min{overflow:hidden; cursor:pointer}   /* 最小化中はどこを押しても中間に戻す */
   #filters .summary{margin-top:0}
   #card .close{top:30px; right:10px; background:rgba(0,0,0,.45); color:#fff; border-radius:50%; width:30px; height:30px}
   #welcome .x{top:30px}
   /* 半分の高さでも名前まで見えるように、写真は低めに */
   #card .ph{aspect-ratio:auto; height:min(56vw, 28vh)}
   /* 地図の出典・拡大縮小のボタン・お知らせはシートに隠れないように持ち上げる */
-  .leaflet-bottom{bottom:var(--peek)}
-  #toast{bottom:calc(var(--peek) + 14px)}
-  #tiles{padding-bottom:calc(var(--peek) + 14px)}
+  .leaflet-bottom{bottom:var(--sheet-h); transition:bottom .26s cubic-bezier(.2,.8,.2,1)}
+  #toast{bottom:calc(var(--sheet-h) + 14px)}
+  #tiles{padding-bottom:calc(var(--sheet-h) + 14px)}
   #tilegrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   /* 指で押しやすく */
   .chip{padding:6px 10px; font-size:12px}
@@ -544,11 +545,11 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 }
 </style>
 <script>
-/* 表示の種類（暗い／明るい）。選んだものはこのブラウザに覚えておく。既定は暗い表示 */
+/* 表示の種類（明るい／暗い）。選んだものはこのブラウザに覚えておく。既定は明るい表示（淡色地図） */
 (function(){
   var t = null;
   try { t = localStorage.getItem('bunkazai-theme'); } catch(e) {}
-  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
 })();
 </script>
 </head>
@@ -736,7 +737,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-28 06:39", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-28 06:56", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
@@ -1891,26 +1892,26 @@ function buildUI(){
   NARROW.addEventListener('change', e=>{ if(!e.matches) setFilterOpen(false); });
 
   // スマホ: ボトムシート
-  SHEET.register($('#filters'), ['peek','half','full'], null);
-  SHEET.register($('#card'), ['half','full'], ()=>closeCard());
-  SHEET.register($('#welcome'), ['half','full'], ()=>{ $('#welcome').hidden=true; });
-  SHEET.register($('#placeList'), ['half','full'], ()=>{ $('#placeList').hidden=true; });
-  SHEET.watchShown($('#card'), 'half');
-  SHEET.watchShown($('#welcome'), 'half');
-  SHEET.watchShown($('#placeList'), 'half');
+  SHEET.register($('#filters'), ['min','mid','max'], null);
+  SHEET.register($('#card'), ['mid','max'], ()=>closeCard());
+  SHEET.register($('#welcome'), ['mid','max'], ()=>{ $('#welcome').hidden=true; });
+  SHEET.register($('#placeList'), ['mid','max'], ()=>{ $('#placeList').hidden=true; });
+  SHEET.watchShown($('#card'));
+  SHEET.watchShown($('#welcome'));
+  SHEET.watchShown($('#placeList'));
   SHEET.init();
   // スマホ幅⇔パソコン幅の切り替え（change が来ない環境もあるので resize でも確かめる）
   let wasMobile=MOBILE.matches, rsz;
   const onWidth=()=>{
     if(MOBILE.matches!==wasMobile){ wasMobile=MOBILE.matches; SHEET.init(); if(mapReady) map.invalidateSize(); }
-    else SHEET.refreshPeek();
+    else SHEET.refresh();
   };
   MOBILE.addEventListener('change', onWidth);
   window.addEventListener('resize', ()=>{ clearTimeout(rsz); rsz=setTimeout(onWidth, 120); });
   // 検索欄に入ったら候補が見えるように全体まで引き上げる
-  $('#q').addEventListener('focus', ()=>{ if(MOBILE.matches) SHEET.to($('#filters'), 'full'); });
-  // 地図を動かし始めたら、検索・絞り込みのシートは下げて地図を広く見せる
-  map.on('dragstart', ()=>{ if(MOBILE.matches && SHEET.state($('#filters'))!=='peek') SHEET.to($('#filters'), 'peek'); });
+  $('#q').addEventListener('focus', ()=>{ if(MOBILE.matches) SHEET.to($('#filters'), 'max'); });
+  // 地図を動かし始めたら、最大化している検索・絞り込みのシートは中間まで下げて地図を見せる
+  map.on('dragstart', ()=>{ if(MOBILE.matches && SHEET.state($('#filters'))==='max') SHEET.to($('#filters'), 'mid'); });
 
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape'){
@@ -1929,7 +1930,11 @@ function buildUI(){
 const NARROW = window.matchMedia('(max-width: 899px)');
 const MOBILE = window.matchMedia('(max-width: 768px)');
 function setFilterOpen(open){
-  if(MOBILE.matches){ SHEET.to($('#filters'), open ? 'half' : 'peek'); return; }   // スマホはボトムシート
+  if(MOBILE.matches){   // スマホはボトムシート。閉じる指示では、最大化していたら中間まで下げる（最小化まではしない）
+    const f=$('#filters');
+    if(open) SHEET.to(f, 'max'); else if(SHEET.state(f)==='max') SHEET.to(f, 'mid');
+    return;
+  }
   document.body.classList.toggle('fopen', open);
   $('#fBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
 }
@@ -1937,94 +1942,117 @@ function setFilterOpen(open){
 /* ---------------- スマホのボトムシート ----------------
    地図を全面に出し、検索・絞り込み（#filters）、詳細（#card）、ようこそ（#welcome）、
    同じ場所の一覧（#placeList）を画面の下から引き出す。
-   高さの止まる位置: peek（検索欄まで見える）/ half（画面の半分）/ full（上部バーの下まで）。
-   ・上端のつまみをドラッグ、またはタップ（いちばん下⇔その次）で動かす
-   ・中身がいちばん上までスクロールされた状態で下へスワイプすると下げる。全体でないときの上スワイプは引き上げる
-   ・素早く払うと、その向きの次の位置まで動く
-   ・#filters 以外は、いちばん下からさらに下げると閉じる */
+
+   止まる位置（スナップポイント）
+     min 最小化: つまみと「○件 表示中」だけ（検索・絞り込みシートのみ）
+     mid 中間  : 検索・絞り込みは画面の約35%（検索欄の先頭まで見える）。既定。詳細などは約50%
+     max 最大化: 画面の約85%。中をスクロールして見る
+   指を離したときの決め方
+     ・素早く払ったとき（0.45px/ms 以上）: 払った向きで、いまの高さの次の位置へ
+     ・ゆっくり離したとき: いまの高さに最も近い位置へ
+     ・詳細・ようこそ・一覧は、中間より十分下で離す／中間から下へ払うと閉じる
+   動かし方
+     ・上端のつまみ: ドラッグ、またはタップ（最小化→中間→最大化→中間）
+     ・最小化中は、シートのどこを押しても／上へ払っても中間に戻る
+     ・中身がいちばん上までスクロールされているときに下へ払うと下げる。最大化でないときの上へ払うは引き上げる
+     ・スライダー・入力欄・プルダウンの上ではシートを動かさない */
 const SHEET = (()=>{
   const conf = new Map();     // el -> {snaps:[...], close:fn|null}
-  const state = new Map();    // el -> 今の位置の名前
+  const state = new Map();    // el -> いまの位置（'min'|'mid'|'max'）
+  let dragging = false;       // ドラッグ中は画面サイズの変化（アドレスバーの出入り）で高さを戻さない
+  const HANDLE = 28;          // 上端から何pxまでを「つまみ」とみなすか
   const vh = ()=>window.innerHeight;
-  const topGap = ()=>$('#topbar').getBoundingClientRect().bottom + 6;
-  function peekPx(){
-    // 検索欄の下端まで見える高さ（シートの一番上から測る）
-    const f=$('#filters'), q=$('#q');
-    const h = q.getBoundingClientRect().bottom - f.getBoundingClientRect().top + f.scrollTop + 12;
-    return Math.max(96, Math.min(Math.round(h), 240));
-  }
+  const topLimit = ()=>vh() - ($('#topbar').getBoundingClientRect().bottom + 6);
+  // シートの一番上から、中の要素の下端までの距離
+  const below = (el, inner)=>inner.getBoundingClientRect().bottom - el.getBoundingClientRect().top + el.scrollTop;
   function px(el, name){
-    if(name==='peek') return peekPx();
-    if(name==='half') return Math.round(vh()*0.5);
-    return Math.round(vh() - topGap());
+    const isF = el.id==='filters';
+    if(name==='min') return Math.round(Math.max(60, Math.min(96, below(el, el.querySelector('.summary')) + 6)));
+    if(name==='mid'){
+      if(!isF) return Math.round(vh()*0.5);
+      // 画面の35%。ただし検索欄が必ず見えるように（小さな画面では40%まで広げる）
+      const need = below(el, $('#q')) + 14;
+      return Math.round(Math.min(Math.max(vh()*0.35, need), Math.max(vh()*0.40, vh()*0.35)));
+    }
+    return Math.round(Math.min(vh()*0.85, topLimit()));
   }
   function apply(el, name, animate){
     if(!MOBILE.matches) return;
     state.set(el, name);
     el.classList.toggle('sheet-drag', animate===false);
-    el.style.height = px(el, name)+'px';
-    el.classList.toggle('at-peek', name==='peek');
-    if(name==='peek') el.scrollTop = 0;
+    const h = px(el, name);
+    el.style.height = h+'px';
+    el.classList.toggle('at-min', name==='min');
+    if(name==='min') el.scrollTop = 0;
     el.setAttribute('data-sheet', name);
+    if(el.id==='filters') document.documentElement.style.setProperty('--sheet-h', h+'px');
   }
   function to(el, name){
     const c=conf.get(el); if(!c) return;
-    if(!c.snaps.includes(name)) name = c.snaps[0];
+    if(!c.snaps.includes(name)) name = c.snaps.includes('mid') ? 'mid' : c.snaps[0];
     apply(el, name, true);
   }
-  function refreshPeek(){
-    if(!MOBILE.matches) return;
-    document.documentElement.style.setProperty('--peek', peekPx()+'px');
+  function refresh(){
+    if(!MOBILE.matches || dragging) return;
     for(const [el] of conf){ if(state.get(el)) apply(el, state.get(el), false); }
   }
   function register(el, snaps, close){
     conf.set(el, {snaps, close});
     const c=()=>conf.get(el);
-    let start=null;   // ドラッグ中の情報
+    let st=null;   // ドラッグ中の情報
     const onStart = (y, x, target)=>{
       if(!MOBILE.matches) return;
       const r=el.getBoundingClientRect(), now=performance.now();
-      start = {y, x, h:r.height, handle:(y - r.top) < 28, decided:false, drag:false, lastY:y, lastT:now, v:0};
-      // 入力欄・スライダー・プルダウンの上では動かさない（つまみの上は除く）
-      if(!start.handle && target.closest('input,select,textarea,.range')) start=null;
+      const atMin = state.get(el)==='min';
+      st = {y, x, h:r.height, handle: atMin || (y - r.top) < HANDLE, decided:false, drag:false, samples:[[now, y]]};
+      // 入力欄・スライダー・プルダウンの上では動かさない（つまみの上・最小化中は除く）
+      if(!st.handle && target.closest('input,select,textarea,.range')) st=null;
     };
     const onMove = (y, x, ev)=>{
-      if(!start) return;
-      const dy=y-start.y, dx=x-start.x;
-      if(!start.decided){
-        if(Math.abs(dy)<2 && Math.abs(dx)<2) return;
-        start.decided=true;
-        const cur=state.get(el), sn=c().snaps, last=sn[sn.length-1];
-        start.drag = start.handle
-          || (Math.abs(dy)>=Math.abs(dx) && ((dy>0 && el.scrollTop<=0) || (dy<0 && cur!==last)));
-        if(start.drag) el.classList.add('sheet-drag');
-      }
-      if(!start.drag) return;
-      if(ev.cancelable) ev.preventDefault();
-      const now=performance.now();
-      start.v = (y-start.lastY)/Math.max(1, now-start.lastT); start.lastY=y; start.lastT=now;
-      el.style.height = Math.max(40, Math.min(px(el,'full'), start.h - dy))+'px';
-    };
-    const onEnd = ()=>{
-      if(!start) return;
-      const st=start; start=null;
-      el.classList.remove('sheet-drag');
-      const sn=c().snaps;
+      if(!st) return;
+      const dy=y-st.y, dx=x-st.x;
       if(!st.decided){
-        // タップ: つまみなら「いちばん下」⇔「その次」
-        if(st.handle){ const cur=state.get(el); apply(el, cur===sn[0] ? sn[1] : sn[0], true); }
-        return;
+        if(Math.abs(dy)<3 && Math.abs(dx)<3) return;
+        st.decided=true;
+        const sn=c().snaps, last=sn[sn.length-1];
+        st.drag = st.handle
+          || (Math.abs(dy)>=Math.abs(dx) && ((dy>0 && el.scrollTop<=0) || (dy<0 && state.get(el)!==last)));
+        if(st.drag){ dragging=true; el.classList.add('sheet-drag'); }
       }
       if(!st.drag) return;
-      const h=el.getBoundingClientRect().height, lowest=px(el, sn[0]);
-      if(c().close && (h < lowest - 70 || (st.v > 0.9 && state.get(el)===sn[0]))){ el.style.height=''; c().close(); return; }
+      if(ev.cancelable) ev.preventDefault();
+      const now=performance.now();
+      st.samples.push([now, y]);
+      while(st.samples.length>2 && now - st.samples[0][0] > 100) st.samples.shift();   // 直近0.1秒で速さを測る
+      el.style.height = Math.max(40, Math.min(px(el,'max'), st.h - dy))+'px';
+    };
+    const onEnd = ()=>{
+      if(!st) return;
+      const s0=st; st=null; dragging=false;
+      el.classList.remove('sheet-drag');
+      const sn=c().snaps, cur=state.get(el);
+      if(!s0.decided){
+        // タップ: 最小化→中間、中間→最大化、最大化→中間（つまみの上、または最小化中のどこか）
+        if(s0.handle) apply(el, cur==='min' ? 'mid' : cur==='mid' && sn.includes('max') ? 'max' : 'mid', true);
+        return;
+      }
+      if(!s0.drag) return;
+      const h = el.getBoundingClientRect().height;
+      const a=s0.samples[0], b=s0.samples[s0.samples.length-1];
+      const v = (b[1]-a[1]) / Math.max(1, b[0]-a[0]);   // 下向きが正（px/ms）
+      const heights = sn.map(n=>[n, px(el,n)]);
+      const lowest = heights[0][1];
+      // 詳細・ようこそ・一覧: 十分に下げた／いちばん下の位置から下へ払ったら閉じる
+      if(c().close && (h < lowest - 80 || (v > 0.45 && h <= lowest + 10))){
+        el.style.height=''; state.delete(el); c().close(); return;
+      }
       let best;
-      if(Math.abs(st.v) > 0.5){
-        // 払った向きの次の位置
-        const cand = st.v>0 ? sn.filter(n=>px(el,n)<st.h-4) : sn.filter(n=>px(el,n)>st.h+4);
-        best = cand.length ? (st.v>0 ? cand[cand.length-1] : cand[0]) : state.get(el);
+      if(Math.abs(v) > 0.45){
+        // 払った向きの、いまの高さの次の位置
+        const cand = v>0 ? heights.filter(([,hh])=>hh < h - 6) : heights.filter(([,hh])=>hh > h + 6);
+        best = cand.length ? (v>0 ? cand[cand.length-1][0] : cand[0][0]) : (v>0 ? heights[0][0] : heights[heights.length-1][0]);
       } else {
-        best = sn.reduce((a,n)=>Math.abs(px(el,n)-h)<Math.abs(px(el,a)-h)?n:a, sn[0]);
+        best = heights.reduce((m,x)=>Math.abs(x[1]-h)<Math.abs(m[1]-h)?x:m)[0];
       }
       apply(el, best, true);
     };
@@ -2032,42 +2060,43 @@ const SHEET = (()=>{
     el.addEventListener('touchmove', e=>onMove(e.touches[0].clientY, e.touches[0].clientX, e), {passive:false});
     el.addEventListener('touchend', onEnd);
     el.addEventListener('touchcancel', onEnd);
-    // マウス（パソコンで幅を狭めたとき）はつまみだけで動かす
+    // マウス（パソコンで幅を狭めたとき）: つまみ（最小化中はシート全体）でドラッグ・クリック
     el.addEventListener('mousedown', e=>{
       if(e.button!==0 || !MOBILE.matches) return;
-      const r=el.getBoundingClientRect(); if(e.clientY - r.top >= 28) return;
+      const r=el.getBoundingClientRect();
+      if(state.get(el)!=='min' && e.clientY - r.top >= HANDLE) return;
       onStart(e.clientY, e.clientX, e.target); e.preventDefault();
       const mm=ev=>onMove(ev.clientY, ev.clientX, ev);
       const mu=()=>{ document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu); onEnd(); };
       document.addEventListener('mousemove',mm); document.addEventListener('mouseup',mu);
     });
   }
-  // 表示されたシートは決まった位置から始める（開き直すたびに）
-  function watchShown(el, first){
+  // 表示されたシートは中間から始める（開き直すたびに）
+  function watchShown(el){
     const isShown=()=>!el.hidden && !el.classList.contains('hidden');
     let was=isShown();
     new MutationObserver(()=>{
       const now=isShown();
-      if(now && !was) to(el, first);
+      if(now && !was) to(el, 'mid');
       was=now;
     }).observe(el, {attributes:true, attributeFilter:['hidden','class']});
   }
   function reset(){
-    for(const [el] of conf){ el.style.height=''; el.classList.remove('at-peek','sheet-drag'); el.removeAttribute('data-sheet'); state.delete(el); }
-    document.documentElement.style.removeProperty('--peek');
+    for(const [el] of conf){ el.style.height=''; el.classList.remove('at-min','sheet-drag'); el.removeAttribute('data-sheet'); state.delete(el); }
+    document.documentElement.style.removeProperty('--sheet-h');
   }
   function init(){
     if(!MOBILE.matches){ reset(); return; }
     document.body.classList.remove('fopen');
-    refreshPeek();
-    for(const [el] of conf){ if(!state.get(el)) to(el, conf.get(el).snaps[0]); }
+    for(const [el] of conf){ if(!state.get(el) && (el.id==='filters' || (!el.hidden && !el.classList.contains('hidden')))) to(el, 'mid'); }
   }
-  return {register, watchShown, to, init, refreshPeek, state:el=>state.get(el), px};
+  return {register, watchShown, to, init, refresh, state:el=>state.get(el), px};
 })();
 /* 地図を寄せるときの余白。スマホは下のシートに隠れる分を下に足す */
 function fitPad(p){
   if(!MOBILE.matches) return {padding:[p,p]};
-  const bottom = $('#filters').getBoundingClientRect().height || 150;
+  const f=$('#filters'), st=SHEET.state(f);
+  const bottom = st ? SHEET.px(f, st) : window.innerHeight*0.35;
   return {paddingTopLeft:[p/2, p/2], paddingBottomRight:[p/2, Math.min(bottom, window.innerHeight*0.6) + p/2]};
 }
 
