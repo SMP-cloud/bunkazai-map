@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-28 06:56） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-29 06:04） -->
 <title>登録有形文化財（建造物）全件マップ</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -322,7 +322,7 @@ body.picking .leaflet-marker-pane,
 body.picking .leaflet-marker-pane *,
 body.picking .leaflet-overlay-pane canvas,
 body.picking .leaflet-interactive{pointer-events:none!important}
-#toast{position:absolute; left:50%; bottom:30px; transform:translateX(-50%); z-index:1020;
+#toast{position:absolute; left:50%; bottom:30px; transform:translateX(-50%); z-index:3100;   /* 図鑑の上にも出す */
   background:var(--glass); border:1px solid var(--line2); padding:7px 14px; font-size:12px;
   border-radius:2px; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); max-width:calc(100% - 32px)}
 
@@ -444,6 +444,75 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 #about .cats .n{margin-left:auto; color:var(--dim); font-variant-numeric:tabular-nums}
 #about .x{position:absolute; top:12px; right:12px; width:28px; height:28px; border:1px solid var(--line);
   border-radius:2px; background:transparent; color:var(--fg); cursor:pointer; font-size:14px; line-height:1}
+
+/* ---- 訪問の記録（カード内） ---- */
+#card .visit{margin:2px 0 13px; padding:10px 11px; border:1px solid var(--line); border-radius:3px; background:var(--hover)}
+#card .visit .vbtn{display:block; width:100%; padding:11px 12px; border:0; border-radius:3px; cursor:pointer;
+  background:var(--sel); color:var(--sel-ink); font-size:13px; letter-spacing:.06em; font-weight:500}
+#card .visit .vbtn:active{opacity:.85}
+#card .visit .vdone{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 9px; font-size:13px; color:var(--fg)}
+#card .visit .vdone b{font-weight:500}
+#card .visit .vdate{color:var(--dim); font-size:11px; font-variant-numeric:tabular-nums}
+#card .visit .vth{display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:9px}
+#card .visit .vth:empty{display:none}
+#card .visit .vth div{position:relative}
+#card .visit .vth img{display:block; width:100%; aspect-ratio:1; object-fit:cover; border-radius:2px; cursor:pointer; background:var(--img-bg)}
+#card .visit .vth .rm{position:absolute; top:2px; right:2px; width:20px; height:20px; border:0; border-radius:50%;
+  background:rgba(0,0,0,.55); color:#fff; font-size:11px; line-height:1; cursor:pointer}
+#card .visit .vact{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px}
+#card .visit .vact .abtn{font-size:11px; padding:3px 9px}
+#card .visit .vnote{font-size:11px; color:var(--dim2); margin-top:7px; line-height:1.6}
+#card .visit .vbusy{font-size:11px; color:var(--dim); margin-top:7px}
+
+/* ---- 図鑑（Myコレクション） ---- */
+#zukanBtn .n{margin-left:5px; color:var(--dim); font-variant-numeric:tabular-nums}
+#zukan{position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center; padding:16px}
+#zukan .dlg{position:relative; width:min(720px,100%); max-height:90vh; overflow-y:auto;
+  background:var(--dialog); border:1px solid var(--line); border-radius:3px; padding:22px 24px 26px;
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px)}
+#zukan h2{font-size:16px; margin:0 36px 4px 0}
+#zukan .lead{font-size:11px; color:var(--dim); margin:0}
+#zukan h3{font-size:11px; letter-spacing:.16em; color:var(--dim); margin:22px 0 8px; font-weight:500}
+#zukan .x{position:absolute; top:12px; right:12px; width:30px; height:30px; border:1px solid var(--line);
+  border-radius:2px; background:transparent; color:var(--fg); cursor:pointer; font-size:14px; line-height:1}
+.zk-score{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; margin-top:16px; font-variant-numeric:tabular-nums}
+.zk-score .big{font-size:36px; line-height:1; color:var(--fg)}
+.zk-score .of{font-size:13px; color:var(--fg2)}
+.zk-score .pct{font-size:13px; color:var(--dim); margin-left:auto}
+.zk-bar{height:7px; background:var(--line); border-radius:4px; overflow:hidden; margin:9px 0 6px}
+.zk-bar i{display:block; height:100%; background:var(--sel); min-width:2px; border-radius:4px}
+.zk-sub{font-size:11.5px; color:var(--dim); font-variant-numeric:tabular-nums}
+.zk-cats{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px 18px}
+.zk-cats .c{display:grid; grid-template-columns:10px 1fr auto; align-items:center; gap:3px 7px; font-size:12px; color:var(--fg2)}
+.zk-cats .sw{width:9px; height:9px; border-radius:2px}
+.zk-cats .v{color:var(--dim); font-size:11px; font-variant-numeric:tabular-nums}
+.zk-cats .mb{grid-column:2 / 4; height:3px; background:var(--line); border-radius:2px; overflow:hidden}
+.zk-cats .mb i{display:block; height:100%}
+.zk-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+.zk-item{cursor:pointer; border:1px solid var(--line); border-radius:3px; overflow:hidden; background:var(--tile)}
+.zk-item:hover{border-color:var(--line2)}
+.zk-item .th{position:relative; aspect-ratio:4/3; background:var(--img-bg); display:flex; align-items:center; justify-content:center}
+.zk-item .th img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.zk-item .th .ph0{font-size:10px; color:var(--dim2); letter-spacing:.1em}
+.zk-item .th .cnt{position:absolute; right:5px; bottom:5px; font-size:10px; padding:0 5px; border-radius:2px;
+  background:rgba(0,0,0,.55); color:#fff; font-variant-numeric:tabular-nums}
+.zk-item .nm{font-size:12px; line-height:1.4; color:var(--fg); padding:6px 7px 0;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.zk-item .mt{display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--dim); padding:3px 7px 7px; font-variant-numeric:tabular-nums}
+.zk-item .mt span{white-space:nowrap}
+.zk-item .mt span:last-child{overflow:hidden; text-overflow:ellipsis; min-width:0}
+.zk-item .mt .sw{width:7px; height:7px; border-radius:50%; flex:0 0 7px}
+.zk-empty{font-size:12px; color:var(--dim); line-height:1.9; padding:14px; border:1px dashed var(--line2); border-radius:3px}
+.zk-tools{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.zk-tools .abtn{font-size:11px; padding:4px 10px}
+.zk-tools .note{flex-basis:100%; margin-top:2px}
+@media (max-width: 768px){
+  #zukan{padding:0; align-items:stretch}
+  #zukan .dlg{max-height:none; height:100%; width:100%; border:0; border-radius:0;
+    padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+  .zk-list{grid-template-columns:repeat(2,1fr)}
+}
 
 /* ---- overlays ---- */
 #boot{position:fixed; inset:0; background:var(--bg); z-index:2000;
@@ -567,6 +636,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
     <div class="spacer"></div>
     <div class="count" id="topcount"></div>
     <button class="tbtn" id="nearBtn">近くの文化財</button>
+    <button class="tbtn" id="zukanBtn" title="訪問した文化財の記録（この端末に保存）">図鑑<span class="n" id="zukanN"></span></button>
     <button class="tbtn" id="themeBtn" title="昼間の屋外では明るい表示が見やすい">明るい表示</button>
     <button class="tbtn" id="aboutBtn">データについて</button>
     <div class="seg civil-link"><a href="../土木遺産/bunkazai_map_modern.html">土木遺産版 →</a></div>
@@ -684,6 +754,17 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
   </div>
 </div>
 
+<div id="zukan" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="zkTitle">
+    <button class="x" id="zkClose" aria-label="閉じる">×</button>
+    <h2 id="zkTitle">図鑑（Myコレクション）</h2>
+    <p class="lead">カードの「訪問した！」で記録した文化財です。記録と写真はこの端末のブラウザの中だけに保存され、どこにも送られません。</p>
+    <div id="zkBody"></div>
+  </div>
+</div>
+<input type="file" id="visitFile" accept="image/*" multiple hidden>
+<input type="file" id="zkImportFile" accept="application/json,.json" hidden>
+
 <div id="about" hidden>
   <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
     <button class="x" id="aboutClose" aria-label="閉じる">×</button>
@@ -737,7 +818,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-28 06:56", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-29 06:04", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
@@ -1884,6 +1965,19 @@ function buildUI(){
   document.querySelector('#topbar .title').onclick=()=>{ closeCard(); showWelcome(); };
   $('#aboutClose').onclick=closeAbout;
   $('#about').onclick=e=>{ if(e.target.id==='about') closeAbout(); };
+  // 図鑑（訪問の記録）
+  $('#zukanBtn').onclick=openZukan;
+  $('#zkClose').onclick=closeZukan;
+  $('#zukan').onclick=e=>{ if(e.target.id==='zukan') closeZukan(); };
+  $('#zkImportFile').onchange=importVisits;
+  updateZukanBtn();
+  // 別のタブで記録が変わったら読み直す
+  window.addEventListener('storage', e=>{
+    if(e.key!==VISITS.KEY) return;
+    VISITS.reload(); updateZukanBtn();
+    if(curId) renderVisit(curId);
+    if(!$('#zukan').hidden) renderZukan();
+  });
 
   // 狭い画面: フィルタのドロワー開閉
   $('#fBtn').onclick=()=>setFilterOpen(!document.body.classList.contains('fopen'));
@@ -1916,6 +2010,7 @@ function buildUI(){
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape'){
       if(!$('#about').hidden){ closeAbout(); return; }
+      if(!$('#zukan').hidden){ closeZukan(); return; }
       if(NEAR.picking){ cancelPick(); return; }
       if(document.body.classList.contains('fopen')){ setFilterOpen(false); return; }
     }
@@ -2459,7 +2554,7 @@ async function loadDetail(catName){
   return m;
 }
 
-let gal=[], galCap=[], galI=0, curRec=null;
+let gal=[], galCap=[], galI=0, curRec=null, galBase=0;
 function openCard(i, opts){
   const push = !opts || opts.push!==false;
   const card=$('#card');
@@ -2569,6 +2664,7 @@ function drawCard(r, ci){
       +esc(r.category)+(r.subcategory?'　'+esc(r.subcategory):'')+'</div>'
     +'<h2>'+esc(r.name)+'</h2>'
     +(r.kana?'<div class="kana">'+esc(r.kana)+'</div>':'<div class="kana"></div>')
+    +'<div class="visit" id="visitBox"></div>'
     +row('年代', esc(r.era))
     +row('竣工', yline)
     +row('構造', esc(r.structure))
@@ -2585,11 +2681,323 @@ function drawCard(r, ci){
     + sameSpotHtml(idxIndex(r.id))
     +'<button class="linkbtn copy" id="copyLink">このページのリンクをコピー</button>'
     +'</div>';
+  galBase = gal.length;          // ここから後ろに「訪問の写真」を足す
   drawSlide();
+  renderVisit(r.id);
   const d=$('#desc'); if(d) d.onclick=()=>d.classList.toggle('clamp');
   $('#copyLink').onclick=e=>copyLink(e.currentTarget);
   $('#card').querySelectorAll('.same .row2').forEach(el=>el.onclick=()=>openCard(+el.dataset.i));
   $('#card').querySelectorAll('.mine .th').forEach(el=>el.onclick=()=>{ galI=+el.dataset.slot; drawSlide(); });
+}
+
+/* ================= 訪問の記録（図鑑） =================
+   サーバーを使わず、このブラウザの中だけに保存する（どこにも送らない）。
+   ・訪問の日時: localStorage 'bunkazai-visits'
+       {"物件ID": ["2026-09-29T05:03:00.000Z", …], …}   … 押した回数ぶん日時が並ぶ
+   ・訪問の写真: IndexedDB 'bunkazai-visits' の photos ストア {key, id, t, blob}
+       localStorage は全部で5MBほどしか入らないので、写真だけこちらに置く。
+       長い辺を 1280px の JPEG に縮めてから入れる（1枚 150〜300KB 程度）
+   端末・ブラウザを替えると引き継がれないので、図鑑の「書き出す／読み込む」で JSON にして移す。 */
+const VISITS = (()=>{
+  const KEY='bunkazai-visits';
+  let data={};
+  function reload(){
+    try{ const o=JSON.parse(localStorage.getItem(KEY)||'{}'); data=(o && typeof o==='object' && !Array.isArray(o)) ? o : {}; }
+    catch(_){ data={}; }
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(data)); return true; }catch(_){ return false; } }
+  reload();
+  const list = id => Array.isArray(data[id]) ? data[id] : [];
+  return {
+    KEY, reload,
+    has: id => list(id).length>0,
+    times: id => list(id).slice().sort(),                       // 古い順
+    last: id => list(id).slice().sort().pop() || '',
+    add(id){ data[id]=list(id).concat([new Date().toISOString()]); return save(); },
+    remove(id){ delete data[id]; return save(); },
+    ids: () => Object.keys(data).filter(k=>list(k).length),
+    raw: () => data,
+    merge(obj){
+      let added=0;
+      for(const [id, ts] of Object.entries(obj||{})){
+        if(!Array.isArray(ts)) continue;
+        const cur=new Set(list(id));
+        ts.forEach(t=>{ if(typeof t==='string' && !isNaN(Date.parse(t)) && !cur.has(t)){ cur.add(t); added++; } });
+        if(cur.size) data[id]=[...cur].sort();
+      }
+      return save() ? added : -1;
+    },
+  };
+})();
+
+const VPHOTO = (()=>{
+  let dbp=null;
+  function db(){
+    if(!dbp) dbp=new Promise((res, rej)=>{
+      if(!window.indexedDB) return rej(new Error('このブラウザでは写真を保存できません'));
+      const rq=indexedDB.open('bunkazai-visits', 1);
+      rq.onupgradeneeded=()=>{
+        const st=rq.result.createObjectStore('photos', {keyPath:'key', autoIncrement:true});
+        st.createIndex('id', 'id');
+      };
+      rq.onsuccess=()=>res(rq.result);
+      rq.onerror=()=>rej(rq.error || new Error('写真の保存場所を開けません'));
+    });
+    return dbp;
+  }
+  // ストアへの1回の読み書き。fn はリクエスト（または undefined）を返す
+  async function run(mode, fn){
+    const d=await db();
+    return new Promise((res, rej)=>{
+      const tx=d.transaction('photos', mode), rq=fn(tx.objectStore('photos'));
+      tx.oncomplete=()=>res(rq ? rq.result : undefined);
+      tx.onerror=()=>rej(tx.error || new Error('写真の保存に失敗しました'));
+      tx.onabort=()=>rej(tx.error || new Error('写真の保存が中断されました（空き容量を確認してください）'));
+    });
+  }
+  return {
+    add: (id, blob, t) => run('readwrite', st=>st.add({id, t:t||new Date().toISOString(), blob})),
+    of: async id => (await run('readonly', st=>st.index('id').getAll(id))).sort((a,b)=>a.t.localeCompare(b.t)),
+    all: () => run('readonly', st=>st.getAll()),
+    remove: key => run('readwrite', st=>st.delete(key)),
+    removeOf: id => run('readwrite', st=>{
+      const c=st.index('id').openCursor(IDBKeyRange.only(id));
+      c.onsuccess=()=>{ const cur=c.result; if(cur){ cur.delete(); cur.continue(); } };
+    }),
+  };
+})();
+
+/* 写真を長い辺 1280px の JPEG に縮める（向きは写真の情報どおりに直す） */
+async function shrinkPhoto(file){
+  let src=null, url=null;
+  try{ src=await createImageBitmap(file, {imageOrientation:'from-image'}); }
+  catch(_){
+    url=URL.createObjectURL(file);
+    src=await new Promise((res, rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error('この画像は読み込めません（'+file.name+'）')); im.src=url; });
+  }
+  const w=src.width||src.naturalWidth, h=src.height||src.naturalHeight, k=Math.min(1, 1280/Math.max(w, h));
+  const cv=document.createElement('canvas'); cv.width=Math.round(w*k); cv.height=Math.round(h*k);
+  cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
+  if(src.close) src.close();
+  if(url) URL.revokeObjectURL(url);
+  return new Promise((res, rej)=>cv.toBlob(b=>b ? res(b) : rej(new Error('写真の変換に失敗しました')), 'image/jpeg', 0.8));
+}
+
+const fmtVisit = iso => {
+  const d=new Date(iso), z=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+' '+z(d.getHours())+':'+z(d.getMinutes());
+};
+function updateZukanBtn(){
+  const n=VISITS.ids().filter(id=>idIndex.has(id)).length;
+  $('#zukanN').textContent = n ? n.toLocaleString() : '';
+}
+
+/* カードの訪問欄 */
+let visitUrls=[];   // カードに出している写真の一時URL（開き直すときに片づける）
+function renderVisit(id){
+  const box=$('#visitBox'); if(!box) return;
+  const ts=VISITS.times(id);
+  if(!ts.length){
+    box.innerHTML='<button class="vbtn" id="vGo">訪問した！（写真を登録）</button>'
+      +'<div class="vnote">今の日時で訪問を記録し、続けて写真を選べます（写真を選ばなくても記録は残ります）。記録と写真はこの端末のブラウザにだけ保存されます。</div>';
+    $('#vGo').onclick=()=>checkIn(id);
+    showVisitPhotos(id, []);
+    return;
+  }
+  const recent=ts.slice().reverse();
+  box.innerHTML='<div class="vdone"><b>✓ 訪問済み</b><span class="vdate">'
+      +recent.slice(0,3).map(fmtVisit).join('、')+(ts.length>3?' ほか':'')+(ts.length>1?'（'+ts.length+'回）':'')+'</span></div>'
+    +'<div class="vth" id="vTh"></div>'
+    +'<div class="vact"><button class="abtn" id="vPhoto">写真を追加</button>'
+    +'<button class="abtn" id="vAgain">もう一度訪問した</button>'
+    +'<button class="abtn" id="vDel">記録を消す</button></div>';
+  $('#vPhoto').onclick=()=>pickVisitPhotos(id);
+  $('#vAgain').onclick=()=>{
+    if(!VISITS.add(id)){ showToast('この端末では記録を保存できません（プライベートモードや容量不足）', 4000); return; }
+    renderVisit(id); showToast('訪問を記録しました（'+VISITS.times(id).length+'回目）', 2200);
+    if(!$('#zukan').hidden) renderZukan();
+  };
+  $('#vDel').onclick=async()=>{
+    if(!confirm('この文化財の訪問記録と、登録した写真を消します。よろしいですか？')) return;
+    VISITS.remove(id);
+    try{ await VPHOTO.removeOf(id); }catch(_){}
+    updateZukanBtn();
+    if(curId===id) renderVisit(id);
+    showToast('訪問記録を消しました', 2000);
+  };
+  VPHOTO.of(id).then(list=>{ if(curId===id) showVisitPhotos(id, list); })
+    .catch(()=>{ const th=$('#vTh'); if(th) th.outerHTML='<div class="vnote">このブラウザでは写真を保存・表示できません。訪問の日時だけ記録しています。</div>'; });
+}
+/* 訪問の写真をカード上の写真枠（ギャラリー）の後ろにつなげ、小さい一覧も出す */
+function showVisitPhotos(id, list){
+  visitUrls.forEach(u=>URL.revokeObjectURL(u)); visitUrls=[];
+  const wasEmpty = galBase===0;
+  gal.length=galBase; galCap.length=galBase;
+  const th=$('#vTh');
+  if(th) th.innerHTML='';
+  list.slice().reverse().forEach((p, k)=>{            // 新しい順
+    const u=URL.createObjectURL(p.blob); visitUrls.push(u);
+    gal.push([u]); galCap.push('訪問の写真 '+fmtVisit(p.t));
+    if(!th) return;
+    const d=document.createElement('div');
+    d.innerHTML='<img alt="" src="'+u+'"><button class="rm" title="この写真を消す" aria-label="この写真を消す">×</button>';
+    d.querySelector('img').onclick=()=>{ galI=galBase+k; drawSlide(); $('#card').scrollTop=0; };
+    d.querySelector('.rm').onclick=async()=>{
+      if(!confirm('この写真を消しますか？（訪問の記録は残ります）')) return;
+      try{ await VPHOTO.remove(p.key); }catch(e){ showToast(e.message, 3000); }
+      if(curId===id) renderVisit(id);
+    };
+    th.appendChild(d);
+  });
+  if(galI>=gal.length) galI=0;
+  // 写真の無い物件で訪問の写真が入った／無くなったときは写真枠を描き直す
+  if(wasEmpty) drawSlide();
+}
+/* 「訪問した！」: 記録してから写真選びを開く（写真選びはボタンを押した直後でないと開けないので先に呼ぶ） */
+function checkIn(id){
+  pickVisitPhotos(id);
+  if(!VISITS.add(id)){ showToast('この端末では記録を保存できません（プライベートモードや容量不足）', 4000); return; }
+  updateZukanBtn();
+  renderVisit(id);
+  showToast('訪問を記録しました。写真を選ぶと一緒に保存します', 2600);
+  if(!$('#zukan').hidden) renderZukan();
+}
+function pickVisitPhotos(id){
+  const inp=$('#visitFile');
+  inp.value='';
+  inp.onchange=async()=>{
+    const files=[...inp.files]; if(!files.length) return;
+    const box=$('#visitBox');
+    const busy=document.createElement('div'); busy.className='vbusy'; busy.textContent='写真を保存しています…';
+    if(box && curId===id) box.appendChild(busy);
+    let ok=0, err='';
+    for(const f of files){
+      try{ await VPHOTO.add(id, await shrinkPhoto(f)); ok++; }
+      catch(e){ err=e.message||String(e); }
+    }
+    busy.remove();
+    if(ok && !VISITS.has(id)){ VISITS.add(id); updateZukanBtn(); }   // 写真だけ先に選んだ場合も訪問に数える
+    if(curId===id) renderVisit(id);
+    if(!$('#zukan').hidden) renderZukan();
+    showToast(ok ? '写真を'+ok+'枚保存しました'+(err?'（一部失敗: '+err+'）':'') : '写真を保存できませんでした: '+err, 3200);
+  };
+  inp.click();
+}
+
+/* ---- 図鑑モーダル ---- */
+let zkUrls=[];
+function openZukan(){ renderZukan(); $('#zukan').hidden=false; $('#zkClose').focus(); }
+function closeZukan(){ $('#zukan').hidden=true; zkUrls.forEach(u=>URL.revokeObjectURL(u)); zkUrls=[]; $('#zukanBtn').focus(); }
+function renderZukan(){
+  const fmt=n=>n.toLocaleString();
+  const vis=VISITS.ids().filter(id=>idIndex.has(id)).map(id=>idIndex.get(id));
+  const n=vis.length, pct=N ? n/N*100 : 0;
+  const pctTxt = n===0 ? '0%' : (pct<0.1 ? pct.toFixed(2) : pct.toFixed(1))+'%';
+  // 分類ごと・都道府県
+  const catTot=new Uint32Array(IDX.cats.length), catVis=new Uint32Array(IDX.cats.length);
+  for(let i=0;i<N;i++) catTot[cat[i]]++;
+  const prefSet=new Set();
+  vis.forEach(i=>{ catVis[cat[i]]++; IDX.prefComp[prf[i]].forEach(p=>prefSet.add(p)); });
+  const nVisits=vis.reduce((a,i)=>a+VISITS.times(ids[i]).length, 0);
+  // 訪問済み一覧（最後に訪れた順）
+  const rows=vis.map(i=>[i, VISITS.last(ids[i])]).sort((a,b)=>b[1].localeCompare(a[1]));
+  const cityName = i => city[i]>=0 ? IDX.cities[city[i]] : IDX.prefs[prf[i]];
+
+  let html='<div class="zk-score"><span class="big">'+fmt(n)+'</span><span class="of">/ '+fmt(N)+' 件を訪問</span>'
+    +'<span class="pct">達成度 '+pctTxt+'</span></div>'
+    +'<div class="zk-bar"><i style="width:'+Math.min(100, pct).toFixed(3)+'%"></i></div>'
+    +'<div class="zk-sub">訪れた都道府県 '+prefSet.size+' / 47 ・ 訪問の記録 '+fmt(nVisits)+' 回</div>'
+    +'<h3>分類ごと</h3><div class="zk-cats">'
+    + IDX.cats.map((c,k)=>'<div class="c"><span class="sw" style="background:'+CAT_COLORS[k]+'"></span><span>'+esc(c)+'</span>'
+        +'<span class="v">'+fmt(catVis[k])+' / '+fmt(catTot[k])+'</span>'
+        +'<span class="mb"><i style="width:'+(catTot[k]?Math.max(catVis[k]?2:0, catVis[k]/catTot[k]*100):0).toFixed(2)+'%; background:'+CAT_COLORS[k]+'"></i></span></div>').join('')
+    +'</div>'
+    +'<h3>訪問済み一覧'+(n?'（最後に訪れた順）':'')+'</h3>';
+  if(!n){
+    html+='<div class="zk-empty">まだ記録がありません。地図のピンを押して開くカードの「<b>訪問した！（写真を登録）</b>」を押すと、ここに集まります。</div>';
+  } else {
+    html+='<div class="zk-list">'+rows.map(([i,t])=>{
+      const c=VISITS.times(ids[i]).length;
+      return '<div class="zk-item" data-i="'+i+'" data-id="'+esc(ids[i])+'"><div class="th"><span class="ph0">NO PHOTO</span>'
+        +(c>1?'<span class="cnt">'+c+'回</span>':'')+'</div>'
+        +'<div class="nm">'+esc(names[i])+'</div>'
+        +'<div class="mt"><span class="sw" style="background:'+CAT_COLORS[cat[i]]+'"></span>'
+        +'<span>'+esc(fmtVisit(t).slice(0,10))+'</span><span title="'+esc(cityName(i)||'')+'">'+esc(cityName(i)||'')+'</span></div></div>';
+    }).join('')+'</div>';
+  }
+  html+='<h3>バックアップ</h3><div class="zk-tools">'
+    +'<button class="abtn" id="zkExport"'+(n?'':' disabled')+'>書き出す（JSONファイル）</button>'
+    +'<button class="abtn" id="zkImport">読み込む</button>'
+    +'<div class="note zk-sub">記録はこの端末のこのブラウザにだけあります。ブラウザのデータを消す・別の端末に移るときは、書き出したファイルを読み込んでください（写真も含みます。読み込みは今の記録に足し合わせます）。</div></div>';
+  const body=$('#zkBody');
+  body.innerHTML=html;
+  body.querySelectorAll('.zk-item').forEach(el=>el.onclick=()=>{
+    const i=+el.dataset.i;
+    closeZukan();
+    openCard(i);
+    const m=markers[i];
+    if(m && mcg.hasLayer(m)) mcg.zoomToShowLayer(m, ()=>{});
+    else if(m) map.setView(m.getLatLng(), Math.max(map.getZoom(), 16));
+  });
+  $('#zkExport').onclick=exportVisits;
+  $('#zkImport').onclick=()=>{ $('#zkImportFile').value=''; $('#zkImportFile').click(); };
+  // 一覧の写真（各物件の一番新しい写真）
+  zkUrls.forEach(u=>URL.revokeObjectURL(u)); zkUrls=[];
+  if(n) VPHOTO.all().then(all=>{
+    const newest=new Map();
+    all.forEach(p=>{ const q=newest.get(p.id); if(!q || p.t>q.t) newest.set(p.id, p); });
+    body.querySelectorAll('.zk-item').forEach(el=>{
+      const p=newest.get(el.dataset.id); if(!p) return;
+      const u=URL.createObjectURL(p.blob); zkUrls.push(u);
+      const img=document.createElement('img'); img.alt=''; img.src=u;
+      el.querySelector('.th').prepend(img); el.querySelector('.ph0').remove();
+    });
+  }).catch(()=>{});
+}
+
+const blobToDataURL = b => new Promise((res, rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(r.error); r.readAsDataURL(b); });
+async function exportVisits(){
+  const btn=$('#zkExport'); btn.disabled=true; btn.textContent='書き出し中…';
+  try{
+    let photos=[];
+    try{ photos=await VPHOTO.all(); }catch(_){}
+    const ph=[];
+    for(const p of photos) ph.push({id:p.id, t:p.t, data:await blobToDataURL(p.blob)});
+    const obj={app:'bunkazai-map', kind:'visits', version:1, exported:new Date().toISOString(), visits:VISITS.raw(), photos:ph};
+    const blob=new Blob([JSON.stringify(obj)], {type:'application/json'});
+    const d=new Date(), z=n=>String(n).padStart(2,'0');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='bunkazai-visits-'+d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+    showToast('書き出しました（訪問 '+VISITS.ids().length+'件・写真 '+ph.length+'枚）', 3000);
+  }catch(e){ showToast('書き出せませんでした: '+(e.message||e), 4000); }
+  btn.disabled=false; btn.textContent='書き出す（JSONファイル）';
+}
+async function importVisits(){
+  const f=$('#zkImportFile').files[0]; if(!f) return;
+  try{
+    const obj=JSON.parse(await f.text());
+    if(!obj || obj.kind!=='visits' || typeof obj.visits!=='object') throw new Error('図鑑の書き出しファイルではありません');
+    const added=VISITS.merge(obj.visits);
+    if(added<0) throw new Error('この端末では記録を保存できません');
+    // 写真: 同じ物件・同じ日時のものは入れない
+    let nPh=0;
+    if(Array.isArray(obj.photos) && obj.photos.length){
+      let have=new Set();
+      try{ have=new Set((await VPHOTO.all()).map(p=>p.id+'|'+p.t)); }catch(_){}
+      for(const p of obj.photos){
+        if(!p || typeof p.id!=='string' || typeof p.data!=='string' || !p.data.startsWith('data:image/')) continue;
+        if(have.has(p.id+'|'+p.t)) continue;
+        const blob=await (await fetch(p.data)).blob();
+        await VPHOTO.add(p.id, blob, p.t); nPh++;
+      }
+    }
+    updateZukanBtn(); renderZukan();
+    if(curId) renderVisit(curId);
+    showToast('読み込みました（訪問の記録 '+added+'件・写真 '+nPh+'枚を追加）', 3500);
+  }catch(e){ showToast('読み込めませんでした: '+(e.message||e), 4000); }
 }
 
 async function copyLink(btn){
