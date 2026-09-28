@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-29 06:04） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-29 06:13） -->
 <title>登録有形文化財（建造物）全件マップ</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -393,6 +393,18 @@ body.picking .leaflet-interactive{pointer-events:none!important}
 #card .desc.clamp{display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden}
 #card .desc .hint{color:var(--dim2); font-size:10px; letter-spacing:.1em}
 #card .copy{margin-top:14px; text-align:center}
+/* SNS（X・Instagram） */
+#card .sns{margin-top:14px; border-top:1px solid var(--line); padding-top:11px}
+#card .sns .t{font-size:10px; letter-spacing:.1em; color:var(--dim2); margin-bottom:6px}
+#card .sns .row3{display:flex; flex-wrap:wrap; gap:6px}
+#card .sns a{flex:1 1 auto; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:7px 10px; border:1px solid var(--line2); border-radius:3px; color:var(--fg2); font-size:11.5px;
+  white-space:nowrap; text-decoration:none}
+#card .sns a:hover{color:var(--fg); background:var(--hover2)}
+#card .sns a.share{flex-basis:100%; background:var(--sel); color:var(--sel-ink); border-color:var(--sel)}
+#card .sns a.share:hover{opacity:.9}
+#card .sns .ic{font-weight:600; font-size:12px; line-height:1}
+#card .sns .note{font-size:10.5px; color:var(--dim2); margin-top:6px; line-height:1.6}
 #card .loading{padding:26px 15px; color:var(--dim2); font-size:11px; letter-spacing:.1em}
 
 /* ---- 配布版の表示 ---- */
@@ -818,7 +830,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-29 06:04", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-29 06:13", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
@@ -2679,6 +2691,7 @@ function drawCard(r, ci){
     + mineHtml(r.id)
     + shotHtml(idxIndex(r.id))
     + sameSpotHtml(idxIndex(r.id))
+    + snsHtml(r)
     +'<button class="linkbtn copy" id="copyLink">このページのリンクをコピー</button>'
     +'</div>';
   galBase = gal.length;          // ここから後ろに「訪問の写真」を足す
@@ -2686,6 +2699,8 @@ function drawCard(r, ci){
   renderVisit(r.id);
   const d=$('#desc'); if(d) d.onclick=()=>d.classList.toggle('clamp');
   $('#copyLink').onclick=e=>copyLink(e.currentTarget);
+  // シェアの URL は押した時点の地図の位置も含めたいので、押したときに作り直す
+  const sh=$('#snsShare'); if(sh) sh.onclick=()=>{ sh.href=xShareUrl(r); };
   $('#card').querySelectorAll('.same .row2').forEach(el=>el.onclick=()=>openCard(+el.dataset.i));
   $('#card').querySelectorAll('.mine .th').forEach(el=>el.onclick=()=>{ galI=+el.dataset.slot; drawSlide(); });
 }
@@ -2998,6 +3013,33 @@ async function importVisits(){
     if(curId) renderVisit(curId);
     showToast('読み込みました（訪問の記録 '+added+'件・写真 '+nPh+'枚を追加）', 3500);
   }catch(e){ showToast('読み込めませんでした: '+(e.message||e), 4000); }
+}
+
+/* ================= SNS（X・Instagram） =================
+   どれも新しいタブで開くだけで、このページから SNS へ何かを送ることはない。 */
+const PUBLIC_URL = 'https://smp-cloud.github.io/bunkazai-map/';   // 公開版（GitHub Pages）
+// シェアに載せるページの URL。手元（ファイル・localhost）で見ているときは、
+// 他の人が開けないので公開版の URL に同じ #ハッシュ を付けたものにする
+function shareablePageUrl(){
+  writeHashNow();
+  const h=location.hash;
+  const local = location.protocol==='file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  return local ? PUBLIC_URL + h : location.href;
+}
+function xShareUrl(r){
+  const text='【'+r.name+'】をチェックしました！ #登録有形文化財 #文化財Go';
+  return 'https://x.com/intent/post?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(shareablePageUrl());
+}
+// Instagram のハッシュタグ: 空白を除く。記号（（）・「」など）はタグに使えず途中で切れるので一緒に除く
+const igTag = name => name.replace(/[\s　]+/g,'').replace(/[^\p{L}\p{N}_]/gu,'');
+function snsHtml(r){
+  const q=encodeURIComponent(r.name), tag=igTag(r.name);
+  return '<div class="sns"><div class="t">SNS</div><div class="row3">'
+    +'<a href="https://x.com/search?q='+q+'" target="_blank" rel="noopener"><span class="ic">𝕏</span>Xで口コミを見る</a>'
+    +(tag ? '<a href="https://www.instagram.com/explore/tags/'+encodeURIComponent(tag)+'/" target="_blank" rel="noopener">'
+      +'<span class="ic">◎</span>Instagramで写真を見る</a>' : '')
+    +'<a class="share" id="snsShare" href="'+esc(xShareUrl(r))+'" target="_blank" rel="noopener"><span class="ic">𝕏</span>この文化財をXでシェア</a>'
+    +'</div><div class="note">新しいタブで開きます。Instagram は見るのにログインが要ることがあります。</div></div>';
 }
 
 async function copyLink(btn){
