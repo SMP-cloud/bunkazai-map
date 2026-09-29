@@ -3,8 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-30 03:33） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-30 04:20） -->
 <title>登録有形文化財（建造物）全件マップ</title>
+<link rel="canonical" href="https://bunkazai.tokiyado.net/">
+<meta name="description" content="全国の登録有形文化財（建造物）14,000件あまりを地図で探せます。分類・竣工年・地名で絞り込み、近くの文化財も一覧できます。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="登録有形文化財マップ">
+<meta property="og:title" content="登録有形文化財（建造物）全件マップ">
+<meta property="og:description" content="全国の登録有形文化財（建造物）14,000件あまりを地図で探せます。分類・竣工年・地名で絞り込み、近くの文化財も一覧できます。">
+<meta property="og:url" content="https://bunkazai.tokiyado.net/">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
@@ -284,6 +293,16 @@ select:focus{border-color:var(--line2)}
   #placeList{left:8px; right:8px; width:auto; bottom:8px; max-height:44%}
 }
 
+/* ---- 訪問状態の切り替え（地図の上に浮かぶボタン） ---- */
+#mineFloat{position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:1005; display:flex; gap:2px;
+  padding:3px; background:var(--glass); border:1px solid var(--line2); border-radius:18px;
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:0 2px 10px rgba(0,0,0,.18)}
+#mineFloat button{border:0; background:transparent; color:var(--fg2); font-size:12px; letter-spacing:.04em;
+  padding:5px 12px; border-radius:15px; cursor:pointer; white-space:nowrap}
+#mineFloat button.on{background:var(--sel); color:var(--sel-ink)}
+#mineChips{display:none}                   /* 左の列（スマホは下のシート）の同じボタンは、地図の上に移した */
+body.has-mfloat #yearOverlay{top:54px}
+
 /* ---- 年代アニメーション ---- */
 #animBar{margin-top:10px; padding-top:9px; border-top:1px dashed var(--line)}
 .anim-row{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:4px}
@@ -335,7 +354,9 @@ body.picking .leaflet-interactive{pointer-events:none!important}
 .leaflet-bar a:hover{background:var(--hover2)}
 .leaflet-control-attribution{background:var(--attr-bg)!important; color:var(--dim2)!important}
 .leaflet-control-attribution a{color:var(--dim)!important; border:0}
+/* ピンの名前の吹き出し（パソコンのマウスを乗せたときだけ）。半透明で、クリックは下のピンに通す */
 .leaflet-tooltip.pin-tip{
+  pointer-events:none;
   background:var(--glass); border:1px solid var(--line); color:var(--fg);
   border-radius:2px; box-shadow:none; font-size:11px; padding:4px 8px;
   backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
@@ -361,7 +382,18 @@ body.picking .leaflet-interactive{pointer-events:none!important}
 #card .ph{position:relative; width:100%; aspect-ratio:4/3; background:var(--tile);
   overflow:hidden; display:flex; align-items:center; justify-content:center}
 #card .ph img{width:100%; height:100%; object-fit:cover; display:block}
-#card .ph img.whole{object-fit:contain; background:var(--img-bg)}   /* 自分の写真は縦撮りでも切らずに全体を見せる */
+/* 写真は横に並べてスワイプ。切らずに全体を見せ、余白には同じ写真をぼかして敷く。
+   2枚以上なら次の写真の端を少し見せて、横に続くことを伝える */
+#card .ph .strip{position:absolute; inset:0; display:flex; gap:4px; overflow-x:auto; overflow-y:hidden;
+  scroll-snap-type:x mandatory; scrollbar-width:none; overscroll-behavior-x:contain}
+#card .ph .strip::-webkit-scrollbar{display:none}
+#card .ph .slide{position:relative; flex:0 0 100%; height:100%; overflow:hidden; scroll-snap-align:start; background:var(--img-bg)}
+#card .ph .strip.multi .slide{flex-basis:88%}
+#card .ph .strip.multi .slide:last-child{scroll-snap-align:end}
+#card .ph .slide .bg{position:absolute; inset:-20px; background-size:cover; background-position:center;
+  filter:blur(18px) brightness(.72) saturate(1.1)}
+#card .ph .slide img{position:relative; width:100%; height:100%; object-fit:contain; cursor:pointer}
+#card .ph .slide .empty{position:absolute; inset:0; display:flex; align-items:center; justify-content:center}
 #card .ph .empty{color:var(--dim2); font-size:11px; letter-spacing:.1em}
 #card .nav{position:absolute; top:50%; transform:translateY(-50%);
   width:30px; height:44px; display:flex; align-items:center; justify-content:center;
@@ -420,6 +452,7 @@ body.localonly .civil-link{display:none}
 body.nophoto #mTile, body.nophoto .civil-link{display:none}
 body.nophoto #mMap{border-left:0}
 body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
+body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の写真がある物件は写真の枠 */
 #card .dblink{display:flex; flex-direction:column; align-items:center; gap:8px; padding:30px 16px; text-align:center}
 #card .dblink a{font-size:13px; letter-spacing:.04em; padding:7px 14px; border:1px solid var(--line2); border-radius:2px}
 #card .dblink a:hover{border-color:var(--fg)}
@@ -687,7 +720,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
         <h3>訪問状態（撮影済み・未撮影）</h3>
         <div class="chips" id="mineChips"></div>
         <div class="cov" id="coverage"></div>
-        <div class="note">「未撮影」＋「近くの文化財」で、行き先で撮れていない物件を近い順に並べられます。</div>
+        <div class="note">地図の上の「すべて／撮影済み／未撮影」で切り替えられます。「未撮影」＋「近くの文化財」で、行き先で撮れていない物件を近い順に並べられます。</div>
       </div>
 
       <div class="fg" id="nearBox" hidden>
@@ -757,6 +790,7 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
     <div id="stage">
       <div id="map"></div>
       <canvas id="dots"></canvas>
+      <div id="mineFloat" role="group" aria-label="訪問状態（撮影済み・未撮影）" hidden></div>
       <div id="yearOverlay" hidden><span class="y" id="ovY"></span><span class="w" id="ovW"></span></div>
       <div id="tiles"><div id="tilegrid"></div><div id="tilefoot"></div></div>
       <div id="card" class="hidden"></div>
@@ -832,14 +866,17 @@ body.nophoto #card .ph{aspect-ratio:auto; min-height:118px}
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-30 03:33", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-30 04:20", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
        "local" = 写真入りのローカル閲覧専用（img/ を同梱。再配布不可） */
 const DIST = "site";
 const PAGES_BASE = "";   // 物件ページの置き場所（公開版は "" = 同じサイト内。それ以外は公開URL）
-const PAGES_ON = false;       // 物件ページを公開しているか（まだなら「この物件のページを開く」を出さない）
+const PAGES_ON = false;
+/* 自分の写真の並び（表紙が先頭）。content/{ID}.md の cover / photos から build_html.py が作る。
+   {物件ID: ["2023-10-07_140920.jpeg", …]}（撮影日_ファイル名） */
+const PHOTO_ORDER = {"00009682":["2023-10-07_140920.jpeg","2023-10-07_140806.jpeg","2023-10-07_140902.jpeg"]};       // 物件ページを公開しているか（まだなら「この物件のページを開く」を出さない）
 const HAS_MINE = true;   // 自分で撮った写真を同梱しているか
 const NO_PHOTO = DIST === 'standalone' || DIST === 'site';
 const LOCAL_ONLY = DIST === 'local';
@@ -1198,14 +1235,10 @@ function initMap(){
   // マーカーは一度だけ生成し、以降のフィルタでは作り直さない
   for(let i=0;i<N;i++){
     if(geo[i]===GEO_MISSING || !isFinite(lat[i])) { markers.push(null); continue; }
-    const mineHere = MINE && MINE.byId[ids[i]];
-    const m = L.circleMarker([lat[i],lng[i]],{
-      // 自分で撮った物件は、輪を白くして太くする（撮影済みの目印）
-      radius:PIN_R, weight:mineHere?2.5:1, opacity:.95,
-      color:mineHere?INK:CAT_COLORS[cat[i]], fillColor:CAT_COLORS[cat[i]],
-      fillOpacity:mineHere?.9:.55
-    });
+    const m = new PinMarker([lat[i],lng[i]], pinStyle(i));
     m.__i = i;
+    m._badge = isSpecial(i);
+    if(m._badge) SPECIAL.add(m);
     m.on('mouseover', onPinHover);
     m.on('click', e => {
       // canvas 描画のピンはクリックが地図本体にも伝わり、下の map click で
@@ -1248,6 +1281,11 @@ function initMap(){
     }
     e.layer.zoomToBounds({padding:[20,20]});
   });
+
+  // 撮影済み・訪問済みのピンと、選んだピンの輪は、いつも他のピンより手前に描く
+  // （クラスタが分かれたり地図を動かしたりすると、ピンの描く順番が入れ替わるため）
+  mcg.on('animationend', specialToFront);
+  map.on('zoomend moveend', specialToFront);
 
   map.on('click', e=>{
     if(NEAR.picking){ setBase(e.latlng.lat, e.latlng.lng); return; }
@@ -1296,7 +1334,73 @@ function initialView(H){
 // ウィンドウサイズが変わったら地図の描画領域を追従させる
 window.addEventListener('resize', ()=>{ if(!map) return; map.invalidateSize(); if(ANIM.playing) drawDots(); });
 
+/* ---- ピンの見た目 ----
+   撮影済み（自分の写真がある）・訪問済み（図鑑に記録した）のピンは、一回り大きくして
+   白い縁と白いチェックを描き、いつも手前に出す（密集地でも埋もれないように） */
+const BADGE_R = PIN_R + 3;
+const SPECIAL = new Set();          // 撮影済み・訪問済みのピン
+const PinMarker = L.CircleMarker.extend({
+  _updatePath(){
+    L.CircleMarker.prototype._updatePath.call(this);
+    const rd = this._renderer;
+    if(!this._badge || !rd || !rd._drawing || this._empty()) return;
+    const ctx = rd._ctx, p = this._point, r = this._radius;
+    ctx.save();
+    // 白い縁の外に細い暗い線（明るい地図の上でも縁が分かるように）
+    ctx.beginPath(); ctx.arc(p.x, p.y, r + 2, 0, Math.PI*2);
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.stroke();
+    // チェック
+    ctx.beginPath();
+    ctx.moveTo(p.x - r*.45, p.y + r*.02); ctx.lineTo(p.x - r*.1, p.y + r*.38); ctx.lineTo(p.x + r*.48, p.y - r*.34);
+    ctx.lineWidth = 1.9; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#fff'; ctx.stroke();
+    ctx.restore();
+  }
+});
+function isSpecial(i){ return !!(MINE_FLAG && MINE_FLAG[i]) || VISITS.has(ids[i]); }
+function pinStyle(i){
+  const c = CAT_COLORS[cat[i]];
+  return isSpecial(i)
+    ? {radius:BADGE_R, weight:2.5, color:'#ffffff', opacity:1, fillColor:c, fillOpacity:1}
+    : {radius:PIN_R, weight:1, color:c, opacity:.95, fillColor:c, fillOpacity:.55};
+}
+/* 訪問の記録が変わった物件のピンを描き直す（ids を省くと全部） */
+function refreshPins(pidList){
+  const list = pidList ? pidList.map(id=>idIndex.get(id)).filter(i=>i!=null) : markers.map((m,i)=>i);
+  for(const i of list){
+    const m = markers[i]; if(!m) continue;
+    const sp = isSpecial(i);
+    if(sp === m._badge) continue;
+    m._badge = sp;
+    if(sp) SPECIAL.add(m); else SPECIAL.delete(m);
+    m.setStyle(pinStyle(i));
+  }
+  specialToFront();
+}
+function specialToFront(){
+  if(!map) return;
+  for(const m of SPECIAL) if(m._map) m.bringToFront();
+  if(selRing && selRing._map) selRing.bringToFront();
+}
+/* 選んでいる物件（カードを開いている物件）のピンに輪を付ける。
+   タッチ端末では名前の吹き出しを出さないので、どのピンを選んだかはこの輪で示す */
+let selRing = null;
+function setSelected(i){
+  if(selRing){ selRing.remove(); selRing = null; }
+  if(i==null || i<0 || !map || !isFinite(lat[i])) return;
+  const ll = [lat[i], lng[i]];
+  selRing = L.featureGroup([
+    L.circleMarker(ll, {radius:15, weight:2, color:'#ffffff', opacity:.95, fill:false, interactive:false}),
+    L.circleMarker(ll, {radius:12, weight:3, color:INK, opacity:.95, fill:true, fillColor:INK, fillOpacity:.10, interactive:false}),
+  ]).addTo(map);
+  selRing.bringToFront();
+}
+
+/* パソコンのマウスを乗せたときだけ名前の吹き出しを出す。
+   タッチ端末ではタップのたびに吹き出しが出て近くのピンを隠すので出さない（名前は下のシート・カードに出る） */
+const CAN_HOVER = window.matchMedia('(hover: hover) and (pointer: fine)');
 function onPinHover(e){
+  const oe = e.originalEvent;
+  if(!CAN_HOVER.matches || (oe && oe.pointerType && oe.pointerType !== 'mouse')) return;
   const cp = e.originalEvent ? map.mouseEventToContainerPoint(e.originalEvent) : null;
   const j = cp ? nearestOnMap(cp, HIT_R) : -1;
   const target = j>=0 ? markers[j] : e.target;
@@ -1305,7 +1409,7 @@ function onPinHover(e){
   target.bindTooltip(
     '<div>'+esc(names[i])+'</div><div class="c">'+esc(IDX.cats[cat[i]])
     + (y ? ' · '+y+(ysrc[i]===SRC_ESTIMATED?'（推定）':'年') : '') + '</div>',
-    {className:'pin-tip', direction:'top', offset:[0,-6], opacity:1}
+    {className:'pin-tip', direction:'top', offset:[0,-8], opacity:.88}
   ).openTooltip();
 }
 
@@ -1432,6 +1536,7 @@ function applyFilters(){
     for(let k=0;k<V;k++){ const m=markers[visIdx[k]]; if(m) vis.push(m); }
     mcg.clearLayers();
     mcg.addLayers(vis);
+    specialToFront();
   }
   if(NEAR.base) renderNear();
   scheduleHash();
@@ -1781,8 +1886,7 @@ function syncControls(){
     const on=F.photo.has(+el.dataset.v); el.classList.toggle('on',on); el.classList.toggle('off',!on); });
   drawYearUI();
   $('#tgNull').classList.toggle('on', F.showNull);
-  document.querySelectorAll('#mineChips .chip').forEach(el=>{
-    el.classList.toggle('on', +el.dataset.v===F.mine); });   // どれか1つを選ぶボタンなので、選ばれていない方も薄くしない
+  syncMineButtons();
   $('#prefSel').value = F.pref;
   buildCityOptions();
   $('#q').value = F.qRaw;
@@ -1861,17 +1965,21 @@ function buildUI(){
   // 自分の写真（すべて / 撮影済み / 未撮影 の切り替え。ひとつだけ選ぶ）
   if(MINE){
     $('#mineBox').hidden=false;
-    const mc=$('#mineChips');
+    const mc=$('#mineChips'), mf=$('#mineFloat');
     [[0,'すべて'],[1,'撮影済み'],[2,'未撮影']].forEach(([v,label])=>{
       const c=document.createElement('span');
-      c.className='chip'+(F.mine===v?' on':' off'); c.dataset.v=v; c.textContent=label;
-      c.onclick=()=>{
-        F.mine=v;
-        mc.querySelectorAll('.chip').forEach(el=>{ const on=+el.dataset.v===v; el.classList.toggle('on',on); el.classList.toggle('off',!on); });
-        scheduleFilter(0);
-      };
+      c.className='chip'+(F.mine===v?' on':''); c.dataset.v=v; c.textContent=label;
+      c.onclick=()=>setMine(v);
       mc.appendChild(c);
+      // 同じ切り替えを地図の上にも浮かべる（こちらが主。左の列・下のシートの方は隠している）
+      const b=document.createElement('button');
+      b.type='button'; b.dataset.v=v; b.textContent=label; if(F.mine===v) b.className='on';
+      b.setAttribute('aria-pressed', F.mine===v ? 'true' : 'false');
+      b.onclick=()=>setMine(v);
+      mf.appendChild(b);
     });
+    mf.hidden=false;
+    document.body.classList.add('has-mfloat');
   }
 
   // 都道府県
@@ -1990,7 +2098,7 @@ function buildUI(){
   // 別のタブで記録が変わったら読み直す
   window.addEventListener('storage', e=>{
     if(e.key!==VISITS.KEY) return;
-    VISITS.reload(); updateZukanBtn();
+    VISITS.reload(); updateZukanBtn(); refreshPins();
     if(curId) renderVisit(curId);
     if(!$('#zukan').hidden) renderZukan();
   });
@@ -2035,6 +2143,17 @@ function buildUI(){
     if(gal.length>1 && (e.key==='ArrowLeft'||e.key==='ArrowRight')){
       galI=(galI+(e.key==='ArrowRight'?1:-1)+gal.length)%gal.length; drawSlide();
     }
+  });
+}
+
+/* 訪問状態（すべて / 撮影済み / 未撮影）の切り替え。地図の上のボタンと左の列のボタンをそろえる */
+function setMine(v){ F.mine=v; syncMineButtons(); scheduleFilter(0); }
+function syncMineButtons(){
+  // どれか1つを選ぶボタンなので、選ばれていない方も薄くしない
+  document.querySelectorAll('#mineChips .chip').forEach(el=>el.classList.toggle('on', +el.dataset.v===F.mine));
+  document.querySelectorAll('#mineFloat button').forEach(el=>{
+    const on = +el.dataset.v===F.mine;
+    el.classList.toggle('on', on); el.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
 }
 
@@ -2571,6 +2690,16 @@ async function loadDetail(catName){
 }
 
 let gal=[], galCap=[], galI=0, curRec=null, galBase=0;
+let mineSlot=new Map();   // 自分の写真 → gal の何番目か（「自分の写真」の小さな一覧から写真枠へ飛ぶため）
+/* 自分の写真の並び。content/{ID}.md で決めてあればその順（表紙が先頭）、なければ撮影が新しい順 */
+function mineOrdered(pid){
+  const list=((MINE && MINE.byId[pid]) || []).filter(p=>p.path).slice().reverse();
+  const ord=PHOTO_ORDER[pid];
+  if(!ord) return list;
+  const pos=new Map(ord.map((k,n)=>[k,n]));
+  const rank=(p,n)=>{ const k=p.date+'_'+p.path.split('/').pop(); return pos.has(k) ? pos.get(k) : 1e6+n; };
+  return list.map((p,n)=>[p,rank(p,n)]).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
+}
 function openCard(i, opts){
   const push = !opts || opts.push!==false;
   const card=$('#card');
@@ -2578,6 +2707,7 @@ function openCard(i, opts){
   const catName = IDX.cats[cat[i]];
   if(NARROW.matches) setFilterOpen(false);   // ドロワー内の一覧から開いたときにカードが隠れないように
   curId = ids[i];
+  setSelected(i);
   $('#welcome').hidden=true;                 // カードを開いたら「ようこそ」は閉じる
   card.classList.remove('hidden');
   card.innerHTML = '<div class="loading">読み込み中… '+esc(catName)+'</div>';
@@ -2605,6 +2735,7 @@ function closeCard(opts){
   if(!fromPop && history.state && history.state.card){ history.back(); return; }
   card.classList.add('hidden');
   curId=null;
+  setSelected(-1);
   if(!fromPop && booted) writeHashNow();
 }
 
@@ -2616,8 +2747,7 @@ function mineHtml(pid){
   if(!all.length) return '';
   // 画像を含まない版（build_dist.py --mine-list）では path が無いので、日付だけ出す
   const list = all.filter(p=>p.path);
-  const base = gal.length - list.length;      // 自分の写真は gal の後ろに入れてある（新しい順）
-  const slotOf = new Map(list.map((p,k)=>[p, base + (list.length - 1 - k)]));
+  const slotOf = mineSlot;                    // drawCard が gal に入れたときの位置
   const byDate = new Map();
   all.forEach(p=>{
     if(!byDate.has(p.date)) byDate.set(p.date, []);
@@ -2648,13 +2778,18 @@ function sameSpotHtml(i){
 function drawCard(r, ci){
   curRec = r;
   gal = []; galCap = [];
-  const local = (!NO_PHOTO && r.photo_local) ? [r.photo_local] : [];
-  const first = [...local, ...(NO_PHOTO?[]:(r.photos&&r.photos[0]?[r.photos[0]]:[])), ...(NO_PHOTO?[]:(r.photo?[r.photo]:[]))];
-  if(first.length){ gal.push(first); galCap.push(''); }
-  if(!NO_PHOTO) (r.photos||[]).slice(1).forEach(u=>{ gal.push([u]); galCap.push(''); });
-  // 自分で撮った写真（撮影が新しい順に、文化庁の写真のあとへ）
-  const mine = ((MINE && MINE.byId[r.id]) || []).filter(p=>p.path);
-  [...mine].reverse().forEach(p=>{ gal.push([MINE_DIR+p.path]); galCap.push('自分の写真 '+p.date+(p.time?' '+p.time:'')); });
+  const addDb=()=>{
+    const local = (!NO_PHOTO && r.photo_local) ? [r.photo_local] : [];
+    const first = [...local, ...(NO_PHOTO?[]:(r.photos&&r.photos[0]?[r.photos[0]]:[])), ...(NO_PHOTO?[]:(r.photo?[r.photo]:[]))];
+    if(first.length){ gal.push(first); galCap.push(''); }
+    if(!NO_PHOTO) (r.photos||[]).slice(1).forEach(u=>{ gal.push([u]); galCap.push(''); });
+  };
+  // 自分で撮った写真。content/{ID}.md で表紙・順番を決めてあれば、その順で写真の先頭に出す。
+  // 決めていなければ、撮影が新しい順に文化庁の写真のあとへ
+  mineSlot=new Map();
+  const addMine=()=>mineOrdered(r.id).forEach(p=>{
+    mineSlot.set(p, gal.length); gal.push([MINE_DIR+p.path]); galCap.push('自分の写真 '+p.date+(p.time?' '+p.time:'')); });
+  if(PHOTO_ORDER[r.id]){ addMine(); addDb(); } else { addDb(); addMine(); }
   galI=0;
 
   const row=(k,v)=> (v==null||v==='') ? '' :
@@ -2842,6 +2977,7 @@ function renderVisit(id){
     VISITS.remove(id);
     try{ await VPHOTO.removeOf(id); }catch(_){}
     updateZukanBtn();
+    refreshPins([id]);
     if(curId===id) renderVisit(id);
     showToast('訪問記録を消しました', 2000);
   };
@@ -2878,6 +3014,7 @@ function checkIn(id){
   pickVisitPhotos(id);
   if(!VISITS.add(id)){ showToast('この端末では記録を保存できません（プライベートモードや容量不足）', 4000); return; }
   updateZukanBtn();
+  refreshPins([id]);
   renderVisit(id);
   showToast('訪問を記録しました。写真を選ぶと一緒に保存します', 2600);
   if(!$('#zukan').hidden) renderZukan();
@@ -2896,7 +3033,7 @@ function pickVisitPhotos(id){
       catch(e){ err=e.message||String(e); }
     }
     busy.remove();
-    if(ok && !VISITS.has(id)){ VISITS.add(id); updateZukanBtn(); }   // 写真だけ先に選んだ場合も訪問に数える
+    if(ok && !VISITS.has(id)){ VISITS.add(id); updateZukanBtn(); refreshPins([id]); }   // 写真だけ先に選んだ場合も訪問に数える
     if(curId===id) renderVisit(id);
     if(!$('#zukan').hidden) renderZukan();
     showToast(ok ? '写真を'+ok+'枚保存しました'+(err?'（一部失敗: '+err+'）':'') : '写真を保存できませんでした: '+err, 3200);
@@ -3014,7 +3151,7 @@ async function importVisits(){
         await VPHOTO.add(p.id, blob, p.t); nPh++;
       }
     }
-    updateZukanBtn(); renderZukan();
+    updateZukanBtn(); renderZukan(); refreshPins();
     if(curId) renderVisit(curId);
     showToast('読み込みました（訪問の記録 '+added+'件・写真 '+nPh+'枚を追加）', 3500);
   }catch(e){ showToast('読み込めませんでした: '+(e.message||e), 4000); }
@@ -3022,7 +3159,7 @@ async function importVisits(){
 
 /* ================= SNS（X・Instagram） =================
    どれも新しいタブで開くだけで、このページから SNS へ何かを送ることはない。 */
-const PUBLIC_URL = 'https://smp-cloud.github.io/bunkazai-map/';   // 公開版（GitHub Pages）
+const PUBLIC_URL = "https://bunkazai.tokiyado.net/";   // 公開版の URL（pages_config.json の site_url）
 // シェアに載せるページの URL。手元（ファイル・localhost）で見ているときは、
 // 他の人が開けないので公開版の URL に同じ #ハッシュ を付けたものにする
 function shareablePageUrl(){
@@ -3068,6 +3205,7 @@ async function copyLink(btn){
 function drawSlide(){
   const ph=$('#card .ph'); if(!ph) return;
   ph.innerHTML='';
+  ph.classList.toggle('has-photos', gal.length>0);
   const close=document.createElement('button');
   close.className='close'; close.textContent='×'; close.setAttribute('aria-label','閉じる');
   close.onclick=()=>closeCard(); ph.appendChild(close);
@@ -3085,33 +3223,50 @@ function drawSlide(){
   if(!gal.length){
     const e=document.createElement('div'); e.className='empty'; e.textContent='NO PHOTO'; ph.appendChild(e); return;
   }
-  const cands=gal[galI].slice();
-  const img=document.createElement('img');
-  let ci=0;
-  img.onerror=()=>{ ci++; if(ci<cands.length){ img.src=cands[ci]; }
-    else { img.remove(); const e=document.createElement('div'); e.className='empty'; e.textContent='NO PHOTO'; ph.appendChild(e); } };
-  img.src=cands[0];
-  if(galCap[galI]) img.classList.add('whole');   // 自分の写真
-  img.alt='';
-  img.onclick=()=>{ if(gal.length>1){ galI=(galI+1)%gal.length; drawSlide(); } };
-  ph.appendChild(img);
+  // 写真を横に並べた帯。指で横にスワイプでき、ボタン・矢印キーでも送れる
+  const strip=document.createElement('div');
+  strip.className='strip'+(gal.length>1?' multi':'');
+  gal.forEach((cands0,k)=>{
+    const cands=cands0.slice(); let ci=0;
+    const sl=document.createElement('div'); sl.className='slide';
+    const bg=document.createElement('span'); bg.className='bg';        // 同じ写真をぼかして余白に敷く
+    const img=document.createElement('img'); img.alt=''; if(k>0) img.loading='lazy';
+    const setSrc=u=>{ img.src=u; bg.style.backgroundImage='url("'+String(u).replace(/"/g,'%22')+'")'; };
+    img.onerror=()=>{ ci++; if(ci<cands.length){ setSrc(cands[ci]); return; }
+      img.remove(); bg.remove(); const e=document.createElement('div'); e.className='empty'; e.textContent='NO PHOTO'; sl.appendChild(e); };
+    setSrc(cands[0]);
+    img.onclick=()=>{ if(gal.length>1) go(galI+1, true); };
+    sl.appendChild(bg); sl.appendChild(img);
+    if(galCap[k]){ const cap=document.createElement('div'); cap.className='pcap'; cap.textContent=galCap[k]; sl.appendChild(cap); }
+    strip.appendChild(sl);
+  });
+  ph.appendChild(strip);
+  const count=document.createElement('div'); count.className='pcount';
+  function go(k, smooth){
+    galI=(k+gal.length)%gal.length;
+    const el=strip.children[galI];
+    strip.scrollTo({left: el.offsetLeft, behavior: smooth ? 'smooth' : 'auto'});
+    count.textContent=(galI+1)+' / '+gal.length;
+  }
   if(gal.length>1){
-    const p=document.createElement('button'); p.className='nav prev'; p.textContent='‹';
-    const n=document.createElement('button'); n.className='nav next'; n.textContent='›';
-    p.onclick=e=>{e.stopPropagation(); galI=(galI-1+gal.length)%gal.length; drawSlide();};
-    n.onclick=e=>{e.stopPropagation(); galI=(galI+1)%gal.length; drawSlide();};
-    ph.appendChild(p); ph.appendChild(n);
-    const c=document.createElement('div'); c.className='pcount'; c.textContent=(galI+1)+' / '+gal.length;
-    ph.appendChild(c);
+    const p=document.createElement('button'); p.className='nav prev'; p.textContent='‹'; p.setAttribute('aria-label','前の写真');
+    const n=document.createElement('button'); n.className='nav next'; n.textContent='›'; n.setAttribute('aria-label','次の写真');
+    p.onclick=e=>{ e.stopPropagation(); go(galI-1, true); };
+    n.onclick=e=>{ e.stopPropagation(); go(galI+1, true); };
+    ph.appendChild(p); ph.appendChild(n); ph.appendChild(count);
+    // 指で送ったときは、いま見えている写真の番号に合わせる
+    let t=null;
+    strip.addEventListener('scroll', ()=>{
+      clearTimeout(t);
+      t=setTimeout(()=>{
+        const max=strip.scrollWidth-strip.clientWidth;
+        let k=0, best=1e9;
+        [...strip.children].forEach((el,j)=>{ const d=Math.abs(Math.min(el.offsetLeft, max)-strip.scrollLeft); if(d<best){ best=d; k=j; } });
+        galI=k; count.textContent=(galI+1)+' / '+gal.length;
+      }, 80);
+    }, {passive:true});
   }
-  if(galCap[galI]){
-    const cap=document.createElement('div'); cap.className='pcap'; cap.textContent=galCap[galI];
-    ph.appendChild(cap);
-  }
-  let sx=null;
-  ph.onpointerdown=e=>{sx=e.clientX;};
-  ph.onpointerup=e=>{ if(sx==null) return; const d=e.clientX-sx; sx=null;
-    if(Math.abs(d)>40 && gal.length>1){ galI=(galI+(d<0?1:-1)+gal.length)%gal.length; drawSlide(); } };
+  go(galI, false);
 }
 
 /* 計測用（コンソールから呼べる） */
