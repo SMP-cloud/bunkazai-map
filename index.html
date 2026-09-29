@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-30 04:28） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-30 05:08） -->
 <title>登録有形文化財（建造物）全件マップ</title>
 <meta name="description" content="全国の登録有形文化財（建造物）14,000件あまりを地図で探せます。分類・竣工年・地名で絞り込み、近くの文化財も一覧できます。">
 <meta property="og:type" content="website">
@@ -469,12 +469,27 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
 #tilefoot{padding:18px 0 40px; text-align:center; color:var(--dim2); font-size:11px; letter-spacing:.1em}
 
 /* ---- データについて ---- */
-#about{position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,.55);
-  display:flex; align-items:center; justify-content:center; padding:16px}
-#about .dlg{position:relative; width:min(620px,100%); max-height:88vh; overflow-y:auto;
-  background:var(--dialog); border:1px solid var(--line); border-radius:3px; padding:22px 24px 26px;
+/* ---- 画面に重ねるパネル（データについて・図鑑）共通 ----
+   ・高さは 100dvh（アドレスバーを除いた実際に見えている高さ）。未対応のブラウザは 100vh
+     （iPhone の Safari の 100vh はアドレスバーの分まで含むので、上端が画面外に出ていた）
+   ・上下中央に置くのは margin:auto で。画面より高いときも上端（タイトル・×）から表示される
+     （align-items:center だと、はみ出した上端にスクロールで戻れなかった）
+   ・上端は iPhone のノッチ・時計の分（safe-area-inset-top）をあける
+   ・中のスクロールは overscroll-behavior:contain で、背後の地図・シートに伝えない
+   ・タイトルと×は、中をスクロールしても上に残す（sticky） */
+.modal{position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,.55);
+  height:100vh; height:100dvh; display:flex; overflow:hidden; overscroll-behavior:contain;
+  padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+          calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.modal .dlg{position:relative; margin:auto; width:min(620px,100%); max-height:100%;
+  overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  background:var(--dialog); border:1px solid var(--line); border-radius:3px; padding:0 24px 26px;
   backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px)}
-#about h2{font-size:16px; margin-bottom:4px}
+.modal .dhead{position:sticky; top:0; z-index:3; display:flex; align-items:center; gap:12px;
+  margin:0 -24px 8px; padding:16px 24px 10px; background:var(--panel-solid); border-bottom:1px solid var(--line)}
+.modal .dhead h2{flex:1 1 auto; min-width:0; font-size:16px; margin:0}
+.modal .dhead .x{flex:0 0 auto; width:32px; height:32px; border:1px solid var(--line);
+  border-radius:2px; background:transparent; color:var(--fg); cursor:pointer; font-size:15px; line-height:1}
 #about .lead{font-size:11px; color:var(--dim); margin:0 0 6px}
 #about h3{font-size:11px; letter-spacing:.16em; color:var(--dim); margin:20px 0 6px}
 #about p,#about li{font-size:12px; color:var(--fg2); line-height:1.85; margin:0}
@@ -486,8 +501,6 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
 #about .cats div{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--fg2)}
 #about .cats .sw{width:9px; height:9px; border-radius:2px; flex:0 0 9px}
 #about .cats .n{margin-left:auto; color:var(--dim); font-variant-numeric:tabular-nums}
-#about .x{position:absolute; top:12px; right:12px; width:28px; height:28px; border:1px solid var(--line);
-  border-radius:2px; background:transparent; color:var(--fg); cursor:pointer; font-size:14px; line-height:1}
 
 /* ---- 訪問の記録（カード内） ---- */
 #card .visit{margin:2px 0 13px; padding:10px 11px; border:1px solid var(--line); border-radius:3px; background:var(--hover)}
@@ -510,16 +523,9 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
 
 /* ---- 図鑑（Myコレクション） ---- */
 #zukanBtn .n{margin-left:5px; color:var(--dim); font-variant-numeric:tabular-nums}
-#zukan{position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,.55);
-  display:flex; align-items:center; justify-content:center; padding:16px}
-#zukan .dlg{position:relative; width:min(720px,100%); max-height:90vh; overflow-y:auto;
-  background:var(--dialog); border:1px solid var(--line); border-radius:3px; padding:22px 24px 26px;
-  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px)}
-#zukan h2{font-size:16px; margin:0 36px 4px 0}
+#zukan .dlg{width:min(720px,100%)}
 #zukan .lead{font-size:11px; color:var(--dim); margin:0}
 #zukan h3{font-size:11px; letter-spacing:.16em; color:var(--dim); margin:22px 0 8px; font-weight:500}
-#zukan .x{position:absolute; top:12px; right:12px; width:30px; height:30px; border:1px solid var(--line);
-  border-radius:2px; background:transparent; color:var(--fg); cursor:pointer; font-size:14px; line-height:1}
 .zk-score{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; margin-top:16px; font-variant-numeric:tabular-nums}
 .zk-score .big{font-size:36px; line-height:1; color:var(--fg)}
 .zk-score .of{font-size:13px; color:var(--fg2)}
@@ -552,9 +558,15 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
 .zk-tools .abtn{font-size:11px; padding:4px 10px}
 .zk-tools .note{flex-basis:100%; margin-top:2px}
 @media (max-width: 768px){
-  #zukan{padding:0; align-items:stretch}
-  #zukan .dlg{max-height:none; height:100%; width:100%; border:0; border-radius:0;
-    padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+  /* スマホの図鑑は画面いっぱい。上端のあきはタイトルの帯の中に取る */
+  #zukan{padding:0}
+  #zukan .dlg{margin:0; max-height:none; height:100%; width:100%; border:0; border-radius:0;
+    padding:0 16px calc(28px + env(safe-area-inset-bottom))}
+  #zukan .dhead{margin:0 -16px 8px; padding:calc(12px + env(safe-area-inset-top)) 16px 10px}
+  /* データについても、スマホでは左右の余白を詰める */
+  #about{padding-left:calc(10px + env(safe-area-inset-left)); padding-right:calc(10px + env(safe-area-inset-right))}
+  #about .dlg{padding:0 16px 22px}
+  #about .dhead{margin:0 -16px 8px; padding:14px 16px 10px}
   .zk-list{grid-template-columns:repeat(2,1fr)}
 }
 
@@ -799,10 +811,9 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
   </div>
 </div>
 
-<div id="zukan" hidden>
+<div id="zukan" class="modal" hidden>
   <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="zkTitle">
-    <button class="x" id="zkClose" aria-label="閉じる">×</button>
-    <h2 id="zkTitle">図鑑（Myコレクション）</h2>
+    <div class="dhead"><h2 id="zkTitle">図鑑（Myコレクション）</h2><button class="x" id="zkClose" aria-label="閉じる">×</button></div>
     <p class="lead">カードの「訪問した！」で記録した文化財です。記録と写真はこの端末のブラウザの中だけに保存され、どこにも送られません。</p>
     <div id="zkBody"></div>
   </div>
@@ -810,10 +821,9 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
 <input type="file" id="visitFile" accept="image/*" multiple hidden>
 <input type="file" id="zkImportFile" accept="application/json,.json" hidden>
 
-<div id="about" hidden>
+<div id="about" class="modal" hidden>
   <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
-    <button class="x" id="aboutClose" aria-label="閉じる">×</button>
-    <h2 id="aboutTitle">データについて</h2>
+    <div class="dhead"><h2 id="aboutTitle">データについて</h2><button class="x" id="aboutClose" aria-label="閉じる">×</button></div>
     <p class="lead">登録有形文化財（建造物）全12分類の閲覧用ビューア</p>
 
     <h3>出典</h3>
@@ -864,7 +874,7 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-30 04:28", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-09-30 05:08", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
@@ -2230,6 +2240,8 @@ const SHEET = (()=>{
     let st=null;   // ドラッグ中の情報
     const onStart = (y, x, target)=>{
       if(!MOBILE.matches) return;
+      // 「データについて」「図鑑」などのパネルを開いている間は、下のシートを動かさない
+      if(target.closest('.modal') || document.querySelector('.modal:not([hidden])')) return;
       const r=el.getBoundingClientRect(), now=performance.now();
       const atMin = state.get(el)==='min';
       st = {y, x, h:r.height, handle: atMin || (y - r.top) < HANDLE, decided:false, drag:false, samples:[[now, y]]};
@@ -2605,7 +2617,8 @@ function openAbout(){
     }
   }
   $('#about').hidden=false;
-  $('#aboutClose').focus();
+  $('#about .dlg').scrollTop=0;              // 開いたときは必ず一番上（タイトルと×）から
+  $('#aboutClose').focus({preventScroll:true});
 }
 function closeAbout(){ $('#about').hidden=true; $('#aboutBtn').focus(); }
 
@@ -3041,7 +3054,11 @@ function pickVisitPhotos(id){
 
 /* ---- 図鑑モーダル ---- */
 let zkUrls=[];
-function openZukan(){ renderZukan(); $('#zukan').hidden=false; $('#zkClose').focus(); }
+function openZukan(){
+  renderZukan(); $('#zukan').hidden=false;
+  $('#zukan .dlg').scrollTop=0;              // 開いたときは必ず一番上（タイトルと×）から
+  $('#zkClose').focus({preventScroll:true});
+}
 function closeZukan(){ $('#zukan').hidden=true; zkUrls.forEach(u=>URL.revokeObjectURL(u)); zkUrls=[]; $('#zukanBtn').focus(); }
 function renderZukan(){
   const fmt=n=>n.toLocaleString();
