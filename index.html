@@ -3,13 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-09-30 05:08） -->
+<!-- このファイルは build_dist.py が template_all_map.html から生成しています。直接編集しないでください（2026-10-04 06:44） -->
 <title>登録有形文化財（建造物）全件マップ</title>
+<link rel="canonical" href="https://tokiyado.github.io/bunkazai-map/">
 <meta name="description" content="全国の登録有形文化財（建造物）14,000件あまりを地図で探せます。分類・竣工年・地名で絞り込み、近くの文化財も一覧できます。">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="登録有形文化財マップ">
 <meta property="og:title" content="登録有形文化財（建造物）全件マップ">
 <meta property="og:description" content="全国の登録有形文化財（建造物）14,000件あまりを地図で探せます。分類・竣工年・地名で絞り込み、近くの文化財も一覧できます。">
+<meta property="og:url" content="https://tokiyado.github.io/bunkazai-map/">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -289,6 +291,106 @@ select:focus{border-color:var(--line2)}
 #card .same .sw{width:7px; height:7px; border-radius:50%; flex:0 0 7px; align-self:center}
 @media (max-width: 899px){
   #placeList{left:8px; right:8px; width:auto; bottom:8px; max-height:44%}
+}
+
+/* ---- 選んでいるピン（しずく型＋名前）。物件ページの位置の地図と同じ見た目 ---- */
+.sel-pin{width:0!important; height:0!important; background:none; border:0}
+.sel-mark{position:absolute; left:0; top:0}
+.sel-mark .pin{position:absolute; left:-14px; top:-38px; width:28px; height:40px; overflow:visible;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.sel-mark .plabel{position:absolute; left:0; bottom:44px; transform:translateX(-50%);
+  max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  padding:1px 8px; border-radius:4px; background:#fff; color:#141416; font-size:12px; line-height:18px;
+  box-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+/* ---- 今も使われている文化財（営業中） ----
+   アクセント色（--accent。pages_config.json の living_accent）は、ピンの縁・光と小さな点にだけ使う。面は塗らない */
+:root{--accent:#FFB800}
+#card .live{margin:0 0 12px}
+#card .livebadge{display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--fg); line-height:1.6}
+#card .livebadge .dot, #mineFloat button.live .dot{width:8px; height:8px; border-radius:50%; flex:0 0 8px;
+  background:var(--accent); box-shadow:0 0 6px var(--accent)}
+#card .livebadge .lv{margin-left:auto; font-size:11px; color:var(--dim2); font-variant-numeric:tabular-nums}
+#card .livebtn{display:inline-block; margin-top:8px; padding:6px 14px; border:1px solid var(--line2); border-radius:3px;
+  color:var(--fg); font-size:12.5px; text-decoration:none; background:transparent}
+#card .livebtn:hover{background:var(--hover2)}
+#card .livenote{margin-top:5px; font-size:11px; color:var(--dim2)}
+/* 英語の概要（英語がある物件だけ）。物件ページの English ボタンと同じ控えめな見た目で、カードの中で開閉する */
+#card .en{margin:0 0 10px}
+#card .enbtn{padding:1px 10px; border:1px solid var(--line2); border-radius:12px; background:transparent;
+  color:var(--fg2); font-size:11.5px; cursor:pointer; line-height:1.7}
+#card .enbtn:hover{background:var(--hover2)}
+#card .enbtn .ar{display:inline-block; margin-left:4px; transition:transform .15s}
+#card .enbtn[aria-expanded="true"] .ar{transform:rotate(180deg)}
+#card .entext{margin-top:7px; padding-left:10px; border-left:2px solid var(--line2); font-size:12.5px; line-height:1.7; color:var(--fg2)}
+#card .entext p{margin:0 0 6px}
+#card .entext a{color:var(--fg)}
+/* 営業中のピン（しずく・影・波紋・バウンス）。中身は pages_src/live_pin.css（物件ページと共通） */
+/* 今入れる文化財（営業中）のピン。地図アプリ（build_html.py が差し込む）と物件ページの位置の地図（build_pages.py が
+   page.css の後ろに付ける）で共通。CSS だけで動かす（ぼかし・回転は使わない）。
+   形:  .lpin（先端＝座標が原点）
+          .lp-ripple  根元から広がる細い金色の楕円の輪（線だけ）
+          .lp-shadow  根元の小さな楕円の影
+          .lp-body    しずく（分類色の塗り・縁はアクセント色の細い線）
+          .plabel     名前のラベル（任意）
+   動き: 1. バウンス  少し上から落ちて2回小さく弾んで止まる（0.75秒）。影は弾みに合わせて伸び縮み
+         2. 波紋      着地後、根元から輪が広がりながら薄くなって消える（3.5秒周期で繰り返す）
+         視差効果を減らす設定では、バウンスと波紋を止め、静止した輪1本だけ */
+.lpin{position:absolute; left:0; top:0; width:0; height:0}
+.lpin .lp-body{position:absolute; left:-14px; top:-38px; width:28px; height:40px; transform-origin:14px 38px;
+  animation:lpDrop .75s linear both}
+.lpin .lp-body svg{display:block; width:28px; height:40px; overflow:visible}
+.lpin .lp-shadow{position:absolute; left:-9px; top:-3px; width:18px; height:6px; border-radius:50%;
+  background:rgba(30,30,36,.34); animation:lpShadow .75s linear both}
+.lpin .lp-ripple{position:absolute; left:0; top:0; width:8px; height:3px; box-sizing:border-box;
+  border:2px solid var(--accent); border-radius:50%; transform:translate(-50%,-50%); opacity:0;
+  animation:lpRipple 3.5s cubic-bezier(.2,.6,.4,1) .75s infinite}
+.lpin .plabel{position:absolute; left:0; bottom:44px; transform:translateX(-50%);
+  max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  padding:1px 8px; border-radius:4px; background:#fff; color:#141416; font-size:12px; line-height:18px;
+  box-shadow:0 1px 4px rgba(0,0,0,.3); animation:lpFade .3s ease-out .45s both}
+@keyframes lpDrop{
+  0%  {transform:translateY(-30px); opacity:0; animation-timing-function:cubic-bezier(.55,0,1,.45)}
+  12% {opacity:1}
+  40% {transform:translateY(0) scale(1.1,.86); animation-timing-function:cubic-bezier(0,.55,.45,1)}
+  58% {transform:translateY(-9px) scale(.97,1.04); animation-timing-function:cubic-bezier(.55,0,1,.45)}
+  74% {transform:translateY(0) scale(1.05,.93); animation-timing-function:cubic-bezier(0,.55,.45,1)}
+  87% {transform:translateY(-2px) scale(1)}
+  100%{transform:translateY(0) scale(1); opacity:1}
+}
+@keyframes lpShadow{
+  0%  {transform:scale(.3); opacity:.2}
+  40% {transform:scale(1.2,1.1); opacity:1}
+  58% {transform:scale(.72); opacity:.6}
+  74% {transform:scale(1.08); opacity:.95}
+  87% {transform:scale(.95)}
+  100%{transform:scale(1); opacity:1}
+}
+@keyframes lpRipple{
+  0%  {width:8px; height:3px; opacity:1}
+  50% {width:50px; height:16px; opacity:.8}
+  85% {width:68px; height:22px; opacity:0}
+  100%{width:68px; height:22px; opacity:0}
+}
+@keyframes lpFade{from{opacity:0} to{opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  .lpin .lp-body, .lpin .lp-shadow, .lpin .plabel{animation:none}
+  .lpin .lp-ripple{animation:none; opacity:.9; width:34px; height:11px}
+}
+
+.live-ov{width:0!important; height:0!important; background:none; border:0}
+.live-ov.sel-hide{visibility:hidden}          /* 選んでいる間は選択中のピンの方を出す（隠すだけなので動きはやり直さない） */
+.leaflet-container:not(.show-labels) .live-ov .plabel{display:none}   /* 名前はズーム15以上のときだけ */
+#mineFloat .sep{width:1px; margin:4px 3px; background:var(--line2)}
+#mineFloat button.live{display:inline-flex; align-items:center; gap:6px}
+/* 狭い画面: 拡大縮小ボタンの右隣に置き、帯の幅は中のボタンに合わせる（画面いっぱいに伸ばさない）。
+   内側の余白は左右同じ。入りきらないときだけ横にスクロール（2段には折り返さない） */
+@media (max-width: 560px){
+  body #mineFloat{left:52px; right:auto; width:max-content; max-width:calc(100% - 60px); transform:none;
+    flex-wrap:nowrap; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:none}
+  body #mineFloat::-webkit-scrollbar{display:none}
+  body #mineFloat .sep{display:none}
+  body #mineFloat button{flex:0 0 auto; padding:5px 9px; font-size:11.5px}
 }
 
 /* ---- 訪問状態の切り替え（地図の上に浮かぶボタン） ---- */
@@ -695,7 +797,6 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
     <button class="tbtn" id="zukanBtn" title="訪問した文化財の記録（この端末に保存）">図鑑<span class="n" id="zukanN"></span></button>
     <button class="tbtn" id="themeBtn" title="昼間の屋外では明るい表示が見やすい">明るい表示</button>
     <button class="tbtn" id="aboutBtn">データについて</button>
-    <div class="seg civil-link"><a href="../土木遺産/bunkazai_map_modern.html">土木遺産版 →</a></div>
   </div>
 
   <div id="main">
@@ -874,7 +975,7 @@ body.nophoto #card .ph.has-photos{aspect-ratio:4/3; min-height:0}   /* 自分の
 "use strict";
 
 /* build_html.py が差し込む値（取得日・件数・元号表・版） */
-const BUILD = {"built": "2026-09-30 05:08", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
+const BUILD = {"built": "2026-10-04 06:44", "fetched": "2026-09-11〜2026-09-14", "total": 14885, "perCat": {"交通": 557, "治山治水": 225, "その他": 93, "産業1次": 140, "官公庁舎": 252, "生活関連": 332, "学校": 463, "文化福祉": 526, "産業2次": 1509, "産業3次": 1832, "宗教": 2258, "住宅": 6698}, "missing": 10, "photos": 14841, "estimated": 5285, "typeLow": 4199, "yearMin": 1333, "yearMax": 1990, "eraExample": "江戸後期＝1751–1830", "estimatedDb": 5217, "estimatedProvisional": 54};
 const GENGO = [["慶長",1596],["元和",1615],["寛永",1624],["正保",1644],["慶安",1648],["承応",1652],["明暦",1655],["万治",1658],["寛文",1661],["延宝",1673],["天和",1681],["貞享",1684],["元禄",1688],["宝永",1704],["正徳",1711],["享保",1716],["元文",1736],["寛保",1741],["延享",1744],["寛延",1748],["宝暦",1751],["明和",1764],["安永",1772],["天明",1781],["寛政",1789],["享和",1801],["文化",1804],["文政",1818],["天保",1830],["弘化",1844],["嘉永",1848],["安政",1854],["万延",1860],["文久",1861],["元治",1864],["慶応",1865],["明治",1868],["大正",1912],["昭和",1926],["平成",1989],["令和",2019]];   // [[元号, 開始年], ...]
 /* 版: "" = 通常版（写真あり・data/js を読む）
        "standalone" = 写真抜き単一ファイル（データ埋め込み） / "site" = 写真抜き静的サイト（data/ を読む）
@@ -884,7 +985,14 @@ const PAGES_BASE = "";   // 物件ページの置き場所（公開版は "" = �
 const PAGES_ON = false;
 /* 自分の写真の並び（表紙が先頭）。content/{ID}.md の cover / photos から build_html.py が作る。
    {物件ID: ["2023-10-07_140920.jpeg", …]}（撮影日_ファイル名） */
-const PHOTO_ORDER = {"00009682":["2023-10-07_140920.jpeg","2023-10-07_140806.jpeg","2023-10-07_140902.jpeg"]};       // 物件ページを公開しているか（まだなら「この物件のページを開く」を出さない）
+const PHOTO_ORDER = {"00009682":["2023-10-07_140806.jpeg","2023-10-07_140920.jpeg","2023-10-07_140902.jpeg"]};
+/* 今も使われている文化財（content/{ID}.md の living: true。自分で確認した物件だけ）。build_html.py が作る
+   {label:"生きている文化財", filter:"今入れる文化財", items:{物件ID:{use, verified:"2026年9月確認", url, icon}}} */
+const LIVING = {"label":"生きている文化財","filter":"今入れる文化財","accent":"#FFB800","items":{"00009682":{"use":"カフェ","verified":"2026年9月確認","url":"https://cafe-asanisimasa.com/"}}};
+let LIVE_FLAG = null, LIVE_LIST = [];      // 物件ごとの「営業中」フラグと、その物件の番号の一覧
+document.documentElement.style.setProperty('--accent', LIVING.accent);
+/* 英語の概要（content/{ID}.md の ## English がある物件の分だけ）{物件ID: HTML} */
+const ENGLISH = {"00009682":"<p>A 1931 timber-framed clinic building in Kikuchi, Kumamoto, registered as a Tangible Cultural Property. Since 2022 it has operated as &quot;cafe ASANISIMASA&quot;, so visitors can see the interior while enjoying lunch or coffee. Opening days vary by month; please check the official website before visiting.<\/p>"};       // 物件ページを公開しているか（まだなら「この物件のページを開く」を出さない）
 const HAS_MINE = true;   // 自分で撮った写真を同梱しているか
 const NO_PHOTO = DIST === 'standalone' || DIST === 'site';
 const LOCAL_ONLY = DIST === 'local';
@@ -942,7 +1050,8 @@ const GEO_MISSING = 2, SRC_ESTIMATED = 2;
 const F = {
   cat:null, type:null, src:null,
   ymin:0, ymax:0, showNull:true,
-  pref:'', city:-1, q:'', qRaw:'', photo:null, mine:0   // mine: 0=すべて 1=撮影済み 2=未撮影
+  pref:'', city:-1, q:'', qRaw:'', photo:null, mine:0,  // mine: 0=すべて 1=撮影済み 2=未撮影
+  live:0                                                 // 1 = 今入れる文化財（営業中）だけ
 };
 let MINE_FLAG = null, MINE_TOTAL = 0;   // 物件ごとの「自分の写真あり」フラグ
 /* 撮影の目安（shot_guide.json）。build_html.py が差し込む */
@@ -1050,6 +1159,9 @@ function prepare(){
   // 自分の写真がある物件
   MINE_FLAG = new Uint8Array(N); MINE_TOTAL = 0;
   if(MINE) for(let i=0;i<N;i++) if(MINE.byId[ids[i]]){ MINE_FLAG[i]=1; MINE_TOTAL++; }
+  // 今も使われている文化財
+  LIVE_FLAG = new Uint8Array(N); LIVE_LIST = [];
+  for(const id of Object.keys(LIVING.items)){ const i=idIndex.get(id); if(i!=null){ LIVE_FLAG[i]=1; LIVE_LIST.push(i); } }
   // 市区町村ごとの件数（候補の「9件」表示に使う）
   CITY_N = new Uint32Array(IDX.cities.length);
   for(let i=0;i<N;i++) if(city[i]>=0) CITY_N[city[i]]++;
@@ -1099,6 +1211,7 @@ function parseHash(){
   if(raw.city) H.city=raw.city;
   if(raw.photo==='1'||raw.photo==='0') H.photo=+raw.photo;
   if(raw.mine==='1' || raw.mine==='2') H.mine=+raw.mine;
+  if(raw.live==='1') H.live=1;
   if(raw.q) H.q=raw.q;
   if(raw.id) H.id=raw.id;
   if(raw.z!=null && raw.z!=='' && isFinite(+raw.z)) H.z=+raw.z;
@@ -1124,6 +1237,7 @@ function applyHashToFilters(H){
   }
   if(H.photo!=null) F.photo=new Set([H.photo]);
   if(H.mine) F.mine=H.mine;
+  if(H.live) F.live=1;
   if(H.q){ F.qRaw=H.q; F.q=H.q.toLowerCase(); }
 }
 function hashFromState(){
@@ -1140,6 +1254,7 @@ function hashFromState(){
   if(F.city>=0) put('city', IDX.cities[F.city]);
   if(F.photo.size===1) put('photo', [...F.photo][0]);
   if(F.mine) put('mine', F.mine);
+  if(F.live) put('live', 1);
   if(F.qRaw) put('q', F.qRaw);
   if(curId) put('id', curId);
   if(mapReady){
@@ -1224,6 +1339,11 @@ function initMap(){
     attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">地理院タイル</a>（淡色地図）｜出典: 文化庁 国指定文化財等データベース（登録有形文化財・建造物）'
   }).addTo(map);
 
+  // 選んでいるピンの層。クラスタ（600）より上、名前の吹き出し（650）より下。押しても反応しない
+  map.createPane('selPane');
+  map.getPane('selPane').style.zIndex = 640;
+  map.getPane('selPane').style.pointerEvents = 'none';
+
   // chunkedLoading は setTimeout で分割するぶん体感の完了が遅れる。
   // 計測では同期一括の方が速かったため同期で入れる。
   mcg = L.markerClusterGroup({
@@ -1254,7 +1374,7 @@ function initMap(){
       L.DomEvent.stopPropagation(e);
       if(NEAR.picking){ setBase(e.latlng.lat, e.latlng.lng); return; }
       const cp = map.mouseEventToContainerPoint(e.originalEvent);
-      const j = nearestOnMap(cp, HIT_R);       // 許容範囲内で最も近いピンに寄せ直す
+      const j = e.target._badge ? e.target.__i : nearestOnMap(cp, HIT_R);   // 許容範囲内で最も近いピンに寄せ直す（しずくはそのまま）
       openCard(j>=0 ? j : e.target.__i);
     });
     markers.push(m);
@@ -1343,28 +1463,91 @@ function initialView(H){
 window.addEventListener('resize', ()=>{ if(!map) return; map.invalidateSize(); if(ANIM.playing) drawDots(); });
 
 /* ---- ピンの見た目 ----
-   撮影済み（自分の写真がある）・訪問済み（図鑑に記録した）のピンは、一回り大きくして
-   白い縁と白いチェックを描き、いつも手前に出す（密集地でも埋もれないように） */
+   通常のピン（約1.5万件）は小さな円のまま（描く量を増やさない）。
+   撮影済み（自分の写真がある）・訪問済み（図鑑に記録した）のピンと、選んでいるピンだけ、
+   しずく型（物件ページの位置の地図と同じ形。分類色・白縁・下向きの影）にする。
+   重なったときの手前から順: 選んでいるピン（DOM・専用の層）→ 撮影済み・訪問済み（canvas の最後に描く）→ 通常 */
 const BADGE_R = PIN_R + 3;
+const DROP_H = 38, DROP_R = 12;     // しずくの高さ（先端〜頭のてっぺん）と頭の半径（px）
+const LABEL_Z = 15;                  // 撮影済み・訪問済みのピンに名前を出すズーム
 const SPECIAL = new Set();          // 撮影済み・訪問済みのピン
+// 選んでいるピン・物件ページと同じ形の SVG。先端 (14,38) が座標を指す
+const DROP_SVG = '<svg class="pin" viewBox="0 0 28 40" width="28" height="40" aria-hidden="true">'
+  + '<path d="M14 38C12 32 2 25 2 14A12 12 0 1 1 26 14C26 25 16 32 14 38Z" fill="var(--pin)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>'
+  + '<circle cx="14" cy="14" r="4.5" fill="#fff"/></svg>';
+/* canvas にしずくを描く（先端が (x,y)）。形は DROP_SVG と同じ */
+function dropPath(ctx, x, y){
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x-2, y-6, x-DROP_R, y-13, x-DROP_R, y-24);
+  ctx.arc(x, y-24, DROP_R, Math.PI, 0);
+  ctx.bezierCurveTo(x+DROP_R, y-13, x+2, y-6, x, y);
+  ctx.closePath();
+}
+function drawCheck(ctx, cx, cy, r, width, color){
+  ctx.beginPath();
+  ctx.moveTo(cx - r*.8, cy + r*.05); ctx.lineTo(cx - r*.2, cy + r*.65); ctx.lineTo(cx + r*.85, cy - r*.6);
+  ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = color || '#fff'; ctx.stroke();
+}
+/* opt.check: 撮影済み・訪問済みの白いチェック。営業中のピンは canvas では描かず、HTML で描く（livePinHtml） */
+function drawDrop(ctx, x, y, color, opt){
+  opt = opt || {check:true};
+  const cy = y - 24;
+  ctx.save();
+  dropPath(ctx, x, y);
+  ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
+  ctx.fillStyle = color; ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.strokeStyle = '#fff';
+  ctx.stroke();
+  if(opt.check) drawCheck(ctx, x, cy, 6, 2.4);    // 頭の中に白いチェック（撮影済み・訪問済みの印）
+  ctx.restore();
+}
+/* しずくの上に名前のラベル（白地・角丸。長い名前は … で切る） */
+function drawLabel(ctx, x, y, text){
+  ctx.save();
+  ctx.font = '12px Inter, "Noto Sans JP", system-ui, sans-serif';
+  const maxW = 200;
+  let t = text;
+  if(ctx.measureText(t).width > maxW){
+    while(t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+    t += '…';
+  }
+  const w = ctx.measureText(t).width + 16, h = 20, bx = x - w/2, by = y - DROP_H - 6 - h;
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(bx, by, w, h, 4); else ctx.rect(bx, by, w, h);
+  ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+  ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = '#141416'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(t, x, by + h/2 + .5);
+  ctx.restore();
+}
 const PinMarker = L.CircleMarker.extend({
+  // しずくとラベルの分まで範囲を広げる（描き直すときに消し残し・描き漏れが出ないように）
+  _updateBounds(){
+    if(!this._badge) return L.CircleMarker.prototype._updateBounds.call(this);
+    const p = this._point, w = this._clickTolerance();
+    this._pxBounds = new L.Bounds(p.subtract([112 + w, DROP_H + 34 + w]), p.add([112 + w, 24 + w]));   // 下は先端の光の分
+  },
+  // 押して反応する所: しずくの頭と先端のまわり
+  _containsPoint(pt){
+    if(!this._badge) return L.CircleMarker.prototype._containsPoint.call(this, pt);
+    const head = this._point.subtract([0, 24]);
+    return pt.distanceTo(head) <= DROP_R + this._clickTolerance() || pt.distanceTo(this._point) <= 8;
+  },
   _updatePath(){
-    L.CircleMarker.prototype._updatePath.call(this);
+    if(!this._badge) return L.CircleMarker.prototype._updatePath.call(this);
     const rd = this._renderer;
-    if(!this._badge || !rd || !rd._drawing || this._empty()) return;
-    const ctx = rd._ctx, p = this._point, r = this._radius;
-    ctx.save();
-    // 白い縁の外に細い暗い線（明るい地図の上でも縁が分かるように）
-    ctx.beginPath(); ctx.arc(p.x, p.y, r + 2, 0, Math.PI*2);
-    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.stroke();
-    // チェック
-    ctx.beginPath();
-    ctx.moveTo(p.x - r*.45, p.y + r*.02); ctx.lineTo(p.x - r*.1, p.y + r*.38); ctx.lineTo(p.x + r*.48, p.y - r*.34);
-    ctx.lineWidth = 1.9; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#fff'; ctx.stroke();
-    ctx.restore();
+    if(!rd || !rd._drawing || this._empty()) return;
+    const i = this.__i;
+    if(LIVE_FLAG && LIVE_FLAG[i]) return;         // 営業中のピンは HTML（livePane）で描く
+    drawDrop(rd._ctx, this._point.x, this._point.y, this.options.fillColor,
+             {check: !!(MINE_FLAG && MINE_FLAG[i]) || VISITS.has(ids[i])});
+    if(this._map && this._map.getZoom() >= LABEL_Z) drawLabel(rd._ctx, this._point.x, this._point.y, names[this.__i]);
   }
 });
-function isSpecial(i){ return !!(MINE_FLAG && MINE_FLAG[i]) || VISITS.has(ids[i]); }
+function isSpecial(i){ return !!(MINE_FLAG && MINE_FLAG[i]) || VISITS.has(ids[i]) || !!(LIVE_FLAG && LIVE_FLAG[i]); }
 function pinStyle(i){
   const c = CAT_COLORS[cat[i]];
   return isSpecial(i)
@@ -1384,23 +1567,73 @@ function refreshPins(pidList){
   }
   specialToFront();
 }
+/* 撮影済み・訪問済みのピンを canvas の最後に描く（＝通常のピンより手前） */
 function specialToFront(){
   if(!map) return;
-  for(const m of SPECIAL) if(m._map) m.bringToFront();
-  if(selRing && selRing._map) selRing.bringToFront();
+  // 手前から: 選んでいるピン（別の層）→ 今も使われている文化財 → 撮影済み・訪問済み → 通常
+  for(const m of SPECIAL) if(m._map && !LIVE_FLAG[m.__i]) m.bringToFront();
+  for(const m of SPECIAL) if(m._map &&  LIVE_FLAG[m.__i]) m.bringToFront();
+  updateLiveMarkers();
 }
-/* 選んでいる物件（カードを開いている物件）のピンに輪を付ける。
-   タッチ端末では名前の吹き出しを出さないので、どのピンを選んだかはこの輪で示す */
-let selRing = null;
+/* 今も使われている文化財のピン（HTML と CSS のアニメーション。見た目と動きは pages_src/live_pin.css）。
+   営業中の物件は少ないので、画面に見えている分だけ HTML の要素を置く。
+   ピンが画面に入るたびに要素を作り直すので、そのたびに上から落ちてきて弾む。波紋は置いてある間ずっと繰り返す。
+   クラスタの中に入っているときは出さない。押したときの判定は canvas のピンのまま */
+const LIVE_SVG_PATH = 'M14 38C12 32 2 25 2 14A12 12 0 1 1 26 14C26 25 16 32 14 38Z';   // DROP_SVG と同じ形
+function livePinHtml(i, label){
+  const chk = !!(MINE_FLAG && MINE_FLAG[i]) || VISITS.has(ids[i]);
+  return '<span class="lpin" style="--pin:'+CAT_COLORS[cat[i]]+'"><span class="lp-ripple"></span><span class="lp-shadow"></span>'
+    + '<span class="lp-body"><svg viewBox="0 0 28 40" aria-hidden="true">'
+    + '<path d="'+LIVE_SVG_PATH+'" fill="var(--pin)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>'
+    + (chk ? '<path d="M9.8 14.2l3 3.2 5.6-6.2" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+           : '<circle cx="14" cy="14" r="4.5" fill="#fff"/>')
+    + '</svg></span>' + (label ? '<span class="plabel">'+esc(names[i])+'</span>' : '') + '</span>';
+}
+let livePaneReady = false, selI = -1;
+const liveMk = new Map();          // 物件の番号 → HTML のピン
+function updateLiveMarkers(){
+  if(!map || !LIVE_LIST.length) return;
+  if(!livePaneReady){
+    map.createPane('livePane');
+    map.getPane('livePane').style.zIndex = 450;             // ピンの canvas（400）より上、クラスタ（600）より下
+    map.getPane('livePane').style.pointerEvents = 'none';
+    livePaneReady = true;
+  }
+  map.getContainer().classList.toggle('show-labels', map.getZoom() >= LABEL_Z);
+  const b = map.getBounds().pad(.05);
+  for(const i of LIVE_LIST){
+    const m = markers[i];
+    const show = !!(m && m._map && b.contains(m.getLatLng()));
+    let lm = liveMk.get(i);
+    const chk = !!(MINE_FLAG && MINE_FLAG[i]) || VISITS.has(ids[i]);
+    if(lm && (!show || lm._chk !== chk)){ lm.remove(); liveMk.delete(i); lm = null; }   // 画面の外に出た・訪問の記録が変わった
+    if(show && !lm){
+      lm = L.marker(m.getLatLng(), {pane:'livePane', interactive:false, keyboard:false,
+        icon: L.divIcon({className:'live-ov', html: livePinHtml(i, true), iconSize:[0,0], iconAnchor:[0,0]})}).addTo(map);
+      lm._chk = chk;
+      liveMk.set(i, lm);
+    }
+    if(lm && lm._icon) lm._icon.classList.toggle('sel-hide', i === selI);
+  }
+}
+
+/* 選んでいる物件（カードを開いている物件）のピン: しずく型＋名前のラベル。
+   専用の層（地図・クラスタ・ほかのピンより上）に置くので、いつもいちばん手前。
+   押しても反応しない（下のピン・地図の操作を邪魔しない）。タッチ端末では名前の吹き出しを出さないので、
+   どのピンを選んだかはこれで示す */
+let selMarker = null;
 function setSelected(i){
-  if(selRing){ selRing.remove(); selRing = null; }
+  if(selMarker){ selMarker.remove(); selMarker = null; }
+  selI = (i==null || i<0) ? -1 : i;
+  updateLiveMarkers();
   if(i==null || i<0 || !map || !isFinite(lat[i])) return;
-  const ll = [lat[i], lng[i]];
-  selRing = L.featureGroup([
-    L.circleMarker(ll, {radius:15, weight:2, color:'#ffffff', opacity:.95, fill:false, interactive:false}),
-    L.circleMarker(ll, {radius:12, weight:3, color:INK, opacity:.95, fill:true, fillColor:INK, fillOpacity:.10, interactive:false}),
-  ]).addTo(map);
-  selRing.bringToFront();
+  const html = (LIVE_FLAG && LIVE_FLAG[i]) ? livePinHtml(i, true)
+    : '<span class="sel-mark" style="--pin:'+CAT_COLORS[cat[i]]+'">'+DROP_SVG
+      + '<span class="plabel">'+esc(names[i])+'</span></span>';
+  selMarker = L.marker([lat[i], lng[i]], {
+    icon: L.divIcon({className:'sel-pin', html, iconSize:[0,0], iconAnchor:[0,0]}),
+    pane:'selPane', interactive:false, keyboard:false
+  }).addTo(map);
 }
 
 /* パソコンのマウスを乗せたときだけ名前の吹き出しを出す。
@@ -1495,6 +1728,7 @@ function applyFilters(){
     const fm = (fcity>=0 && city[i]!==fcity) ? 1 : 0;
     if(fmine===1 && !MINE_FLAG[i]) continue;   // 撮影済みだけ
     if(fmine===2 &&  MINE_FLAG[i]) continue;   // 未撮影だけ
+    if(F.live && !LIVE_FLAG[i]) continue;      // 今入れる文化財（営業中）だけ
     // 検索語は名称と所在地の両方に当てる（「尾鷲」のような地名でも引けるように）
     const fq = (q && namesL[i].indexOf(q)<0 && addrL[i].indexOf(q)<0) ? 1 : 0;
     const nf = fc+ft+fs+fy+fp+fr+fm+fq;
@@ -1989,6 +2223,20 @@ function buildUI(){
     mf.hidden=false;
     document.body.classList.add('has-mfloat');
   }
+  // 今入れる文化財（営業中）の絞り込み。訪問状態のボタンの隣に置く
+  if(LIVE_LIST.length){
+    const mf=$('#mineFloat');
+    if(MINE){ const sep=document.createElement('span'); sep.className='sep'; mf.appendChild(sep); }
+    const b=document.createElement('button');
+    b.type='button'; b.id='liveBtn'; b.className='live'+(F.live?' on':'');
+    b.title=LIVING.label+'：今もカフェ・宿・店などとして使われていて、中に入れる文化財';
+    b.innerHTML='<span class="dot"></span>'+esc(LIVING.filter);
+    b.setAttribute('aria-pressed', F.live ? 'true' : 'false');
+    b.onclick=()=>setLive(F.live ? 0 : 1);
+    mf.appendChild(b);
+    mf.hidden=false;
+    document.body.classList.add('has-mfloat');
+  }
 
   // 都道府県
   $('#prefSel').innerHTML='<option value="">すべて</option>'
@@ -2156,10 +2404,13 @@ function buildUI(){
 
 /* 訪問状態（すべて / 撮影済み / 未撮影）の切り替え。地図の上のボタンと左の列のボタンをそろえる */
 function setMine(v){ F.mine=v; syncMineButtons(); scheduleFilter(0); }
+function setLive(v){ F.live=v; syncMineButtons(); scheduleFilter(0); }
 function syncMineButtons(){
   // どれか1つを選ぶボタンなので、選ばれていない方も薄くしない
   document.querySelectorAll('#mineChips .chip').forEach(el=>el.classList.toggle('on', +el.dataset.v===F.mine));
-  document.querySelectorAll('#mineFloat button').forEach(el=>{
+  const lb=$('#liveBtn');
+  if(lb){ lb.classList.toggle('on', !!F.live); lb.setAttribute('aria-pressed', F.live ? 'true' : 'false'); }
+  document.querySelectorAll('#mineFloat button:not(#liveBtn)').forEach(el=>{
     const on = +el.dataset.v===F.mine;
     el.classList.toggle('on', on); el.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
@@ -2826,6 +3077,8 @@ function drawCard(r, ci){
       +esc(r.category)+(r.subcategory?'　'+esc(r.subcategory):'')+'</div>'
     +'<h2>'+esc(r.name)+'</h2>'
     +(r.kana?'<div class="kana">'+esc(r.kana)+'</div>':'<div class="kana"></div>')
+    + enHtml(r.id)
+    + liveHtml(r.id)
     +'<div class="visit" id="visitBox"></div>'
     +row('年代', esc(r.era))
     +row('竣工', yline)
@@ -2849,11 +3102,31 @@ function drawCard(r, ci){
   drawSlide();
   renderVisit(r.id);
   const d=$('#desc'); if(d) d.onclick=()=>d.classList.toggle('clamp');
+  const eb=$('#card .enbtn');
+  if(eb) eb.onclick=()=>{ const t=$('#enText'); t.hidden=!t.hidden; eb.setAttribute('aria-expanded', t.hidden ? 'false' : 'true'); };
   $('#copyLink').onclick=e=>copyLink(e.currentTarget);
   // シェアの URL は押した時点の地図の位置も含めたいので、押したときに作り直す
   const sh=$('#snsShare'); if(sh) sh.onclick=()=>{ sh.href=xShareUrl(r); };
   $('#card').querySelectorAll('.same .row2').forEach(el=>el.onclick=()=>openCard(+el.dataset.i));
   $('#card').querySelectorAll('.mine .th').forEach(el=>el.onclick=()=>{ galI=+el.dataset.slot; drawSlide(); });
+}
+
+/* カードの「営業中｜カフェ・2026年9月確認」のバッジと公式サイトのボタン */
+function liveHtml(pid){
+  const lv = LIVING.items[pid];
+  if(!lv) return '';
+  return '<div class="live" title="'+esc(LIVING.label)+'"><div class="livebadge"><span class="dot"></span>'
+    + '<span>営業中・'+esc(lv.use)+'</span><span class="lv">'+esc(lv.verified)+'</span></div>'
+    + (lv.url ? '<a class="livebtn" href="'+esc(lv.url)+'" target="_blank" rel="noopener">公式サイト ↗</a>'
+              + '<div class="livenote">営業日は公式サイトでご確認ください</div>' : '')
+    + '</div>';
+}
+/* カードの英語の概要（英語がある物件だけ）。「English」を押すとカードの中で開閉する */
+function enHtml(pid){
+  const h = ENGLISH[pid];
+  if(!h) return '';
+  return '<div class="en"><button type="button" class="enbtn" aria-expanded="false" aria-controls="enText">English<span class="ar">▾</span></button>'
+    + '<div class="entext" id="enText" lang="en" hidden>'+h+'</div></div>';
 }
 
 /* ================= 訪問の記録（図鑑） =================
@@ -3174,7 +3447,7 @@ async function importVisits(){
 
 /* ================= SNS（X・Instagram） =================
    どれも新しいタブで開くだけで、このページから SNS へ何かを送ることはない。 */
-const PUBLIC_URL = "https://bunkazai.tokiyado.net/";   // 公開版の URL（pages_config.json の site_url）
+const PUBLIC_URL = "https://tokiyado.github.io/bunkazai-map/";   // 公開版の URL（pages_config.json の site_url）
 // シェアに載せるページの URL。手元（ファイル・localhost）で見ているときは、
 // 他の人が開けないので公開版の URL に同じ #ハッシュ を付けたものにする
 function shareablePageUrl(){
@@ -3251,6 +3524,7 @@ function drawSlide(){
       img.remove(); bg.remove(); const e=document.createElement('div'); e.className='empty'; e.textContent='NO PHOTO'; sl.appendChild(e); };
     setSrc(cands[0]);
     img.onclick=()=>{ if(gal.length>1) go(galI+1, true); };
+    if(k===0) img.addEventListener('load', ()=>fitFrame(ph, strip, img.naturalWidth/img.naturalHeight));
     sl.appendChild(bg); sl.appendChild(img);
     if(galCap[k]){ const cap=document.createElement('div'); cap.className='pcap'; cap.textContent=galCap[k]; sl.appendChild(cap); }
     strip.appendChild(sl);
@@ -3282,6 +3556,19 @@ function drawSlide(){
     }, {passive:true});
   }
   go(galI, false);
+}
+
+/* 写真枠の高さを表紙（1枚目）の比率に合わせる。横長は 16:9、縦長は 4:5 までにし、
+   超える分だけぼかしで埋める。4:3 の横長写真なら上下のぼかし帯はほぼ出ない。
+   ただし高さは画面の 60%（スマホは 32%。下のシートを半分に開いたときに名前まで見えるように）まで */
+function fitFrame(ph, strip, ar){
+  if(!ar || !isFinite(ar) || !ph.isConnected) return;
+  ar = Math.min(16/9, Math.max(4/5, ar));
+  const w = ph.clientWidth * (strip.classList.contains('multi') ? .88 : 1);   // 1枚ぶんの幅（2枚以上は次の写真の端を見せる分だけ狭い）
+  if(w < 50) return;
+  const cap = window.innerHeight * (MOBILE.matches ? .32 : .6);
+  ph.style.aspectRatio = 'auto';
+  ph.style.height = Math.round(Math.min(w / ar, cap)) + 'px';
 }
 
 /* 計測用（コンソールから呼べる） */
